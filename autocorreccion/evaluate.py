@@ -1,8 +1,14 @@
 import sys
 import subprocess
+import os
 
 def evaluar_codigo(filepath):
     try:
+        # Verifica si el archivo existe antes de intentar ejecutarlo
+        if not os.path.exists(filepath):
+            return f"❌ El archivo no existe: {filepath}"
+        
+        # Ejecutar el archivo Python
         resultado = subprocess.run(["python3", filepath], capture_output=True, text=True, timeout=10)
         if resultado.returncode == 0:
             return f"✅ Correcto: {resultado.stdout}"

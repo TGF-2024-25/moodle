@@ -21,8 +21,8 @@ if (!is_dir($upload_dir)) {
 }
 
 if ($_FILES['file']['error'] === UPLOAD_ERR_OK) {
-    $filename = basename($_FILES['file']['name']);
-    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+    $ext = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
+    $filename = $USER->id . '_' . time() . '.' . $ext;    
 
     $allowed_ext = ['py'];
     if (!in_array($ext, $allowed_ext)) {
@@ -60,8 +60,10 @@ if ($_FILES['file']['error'] === UPLOAD_ERR_OK) {
         // Crear un nuevo registro en la tabla de envíos
         $record = new stdClass();
         $record->userid = $USER->id;
+        $record->autocorreccionid = $cm->instance;
         $record->curso = $nota;  // Guardar la calificación
         $record->feedback = $output; // Guardar el feedback
+        $record->filename = $filename;
         $record->timecreated = time();
 
         // Insertar el envío en la base de datos
