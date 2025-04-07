@@ -22,8 +22,10 @@
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="autocorreccionid" TYPE="int" LENGTH="10" NOTNULL="true"/>
                 <FIELD NAME="curso" TYPE="float" NOTNULL="false"/>
                 <FIELD NAME="feedback" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="filename" TYPE="char" LENGTH="255" NOTNULL="false"/>
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
             </FIELDS>
             <KEYS>
