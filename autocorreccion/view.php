@@ -24,7 +24,7 @@ echo $OUTPUT->header();
 global $DB, $USER;
 
 // Mostrar formulario de subida de archivo
-echo "<h2>📝 Sube tu archivo para corrección</h2>";
+echo "<h2>Sube tu archivo para corrección</h2>";
 echo '<form action="upload.php" method="post" enctype="multipart/form-data">
         <input type="hidden" name="id" value="' . $id . '">
         <input type="file" name="file" accept=".py" required>
@@ -61,7 +61,7 @@ $ultima_fecha_formateada = $ultima_fecha ? date('d/m/Y H:i', $ultima_fecha) : 'N
 // Mostrar estadísticas
 if ($num_envios > 0) {
     echo '<div style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;">
-            <h4>📊 Estadísticas de tus envíos</h4>
+            <h4>Estadísticas de tus envíos</h4>
             <ul>
                 <li><strong>Total de envíos:</strong> ' . $num_envios . '</li>
                 <li><strong>Nota media:</strong> ' . $nota_media . '</li>
@@ -72,7 +72,7 @@ if ($num_envios > 0) {
 }
 
 // Mostrar tabla con envíos
-echo '<h3>📝 Tus correcciones anteriores</h3>';
+echo '<h3>Tus correcciones anteriores</h3>';
 if (empty($records)) {
     echo "<p>📭 Aún no has hecho ninguna corrección.</p>";
 } else {

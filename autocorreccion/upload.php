@@ -26,7 +26,7 @@ if ($_FILES['file']['error'] === UPLOAD_ERR_OK) {
 
     $allowed_ext = ['py'];
     if (!in_array($ext, $allowed_ext)) {
-        echo "<p>❌ Solo se permiten archivos .py</p>";
+        echo "<p>Solo se permiten archivos .py</p>";
         echo $OUTPUT->footer();
         exit;
     }
@@ -34,13 +34,13 @@ if ($_FILES['file']['error'] === UPLOAD_ERR_OK) {
     $target_file = $upload_dir . $filename;
 
     if (move_uploaded_file($_FILES['file']['tmp_name'], $target_file)) {
-        echo "<p>✅ Archivo subido correctamente: <strong>$filename</strong></p>";
+        echo "<p>Archivo subido correctamente: <strong>$filename</strong></p>";
 
         // Ejecutar el script de evaluación (evaluate.py)
         $command = escapeshellcmd("python3 " . __DIR__ . "/evaluate.py") . ' ' . escapeshellarg($target_file);
         $output = shell_exec($command);
 
-        echo "<pre>📝 Resultados de la corrección:\n$output</pre>";
+        echo "<pre>Resultados de la corrección:\n$output</pre>";
 
         // Guardar en la base de datos
         global $DB, $USER;
@@ -84,10 +84,10 @@ if ($_FILES['file']['error'] === UPLOAD_ERR_OK) {
         }
         
     } else {
-        echo "<p>❌ Error al subir el archivo.</p>";
+        echo "<p>Error al subir el archivo.</p>";
     }
 } else {
-    echo "<p>❌ Error en la subida del archivo.</p>";
+    echo "<p>Error en la subida del archivo.</p>";
 }
 
 echo $OUTPUT->footer();
