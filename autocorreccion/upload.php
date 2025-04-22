@@ -40,7 +40,7 @@ if ($_FILES['file']['error'] === UPLOAD_ERR_OK) {
         $command = escapeshellcmd("python3 " . __DIR__ . "/evaluate.py") . ' ' . escapeshellarg($target_file);
         $output = shell_exec($command);
 
-        echo "<pre>📝 Resultados de la corrección:\n$output</pre>";
+        echo "<pre>Resultados de la corrección:\n$output</pre>";
 
         // Guardar en la base de datos
         global $DB, $USER;
