@@ -1,6 +1,8 @@
 <?php
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
 
+// Define el formulario de configuración de la actividad
+
 class mod_autocorreccion_mod_form extends moodleform_mod {
     public function definition() {
         $mform = $this->_form;
