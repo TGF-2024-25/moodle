@@ -2,6 +2,8 @@ import sys
 import subprocess
 import os
 
+# Script que recibe el archivo a corregir y lo ejecuta, devolviendo sallida o errores.
+
 def evaluar_codigo(filepath):
     try:
         # Verifica si el archivo existe antes de intentar ejecutarlo

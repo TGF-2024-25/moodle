@@ -2,6 +2,8 @@
 require_once(__DIR__ . '/../../config.php');
 require_login();
 
+// Maneja la vista principal del módulo
+
 $PAGE->set_url('/mod/autocorreccion/index.php');
 $PAGE->set_title('Corrección Automática');
 $PAGE->set_heading('Corrección Automática de Tareas');
