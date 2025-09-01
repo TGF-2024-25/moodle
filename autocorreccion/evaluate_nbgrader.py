@@ -32,56 +32,58 @@ def evaluar_notebook(ruta_notebook):
     with open(ruta_notebook, 'r', encoding='utf-8') as f:
         notebook = nbformat.read(f, as_version=4)
 
-    # Inicializar variables de evaluación
     nota_total = 0
     nota_maxima = 0
     retroalimentacion = []
 
-    # Ejecutar cada celda por separado para capturar errores individuales
-    ejecutor = ExecutePreprocessor(timeout=120, kernel_name='python3')
-    
+    # Ejecutar todo el notebook primero
+    try:
+        ejecutor = ExecutePreprocessor(timeout=120, kernel_name='python3')
+        ejecutor.preprocess(notebook, {'metadata': {'path': os.path.dirname(ruta_notebook)}})
+    except Exception as e:
+        # Si falla la ejecución completa, intentar celdas individualmente
+        pass
+
+    # Evaluar cada celda con metadatos nbgrader
     for i, celda in enumerate(notebook.cells):
         metadatos = celda.get('metadata', {}).get('nbgrader', {})
+        
         if metadatos.get('grade', False):
-            puntos = metadatos.get('points', 0)
+            puntos = metadatos.get('points', 10)  # Por defecto, 10 puntos
             identificador = metadatos.get('grade_id', f'celda_{i}')
             nota_maxima += puntos
 
-            aprobada = True
+            puntos_obtenidos = puntos
             mensaje_error = ""
-            
-            if celda['cell_type'] == 'code':
-                try:
-                    # Ejecutar esta celda individualmente
-                    celda_ejecutar = nbformat.v4.new_notebook()
-                    celda_ejecutar.cells = [celda]
-                    
-                    ejecutor.preprocess(celda_ejecutar, {'metadata': {'path': os.path.dirname(ruta_notebook)}})
-                    
-                    # Verificar si hay errores en los outputs
-                    for salida in celda.get('outputs', []):
-                        if salida.output_type == 'error':
-                            aprobada = False
-                            mensaje_error = f"{salida.ename}: {salida.evalue}"
-                            break
-                            
-                except Exception as e:
-                    aprobada = False
-                    mensaje_error = str(e)
-                    # Continuar con la siguiente celda aunque esta falle
 
-            puntos_obtenidos = puntos if aprobada else 0
+            # Verificar si la celda tiene errores
+            if celda['cell_type'] == 'code':
+                for output in celda.get('outputs', []):
+                    if output.output_type == 'error':
+                        puntos_obtenidos = 0
+                        mensaje_error = f"{output.ename}: {output.evalue}"
+                        break
+
             nota_total += puntos_obtenidos
             
-            if aprobada:
+            if puntos_obtenidos == puntos:
                 retroalimentacion.append(f"{identificador}: {puntos_obtenidos}/{puntos}\n")
             else:
                 mensaje_simple = simplificar_error(mensaje_error)
                 retroalimentacion.append(f"{identificador}: {puntos_obtenidos}/{puntos} - {mensaje_simple}\n")
 
+    # NORMALIZACIÓN A ESCALA 0-10
+    if nota_maxima > 0:
+        # Calcular la nota normalizada (proporción de puntos obtenidos * 10)
+        nota_final = (nota_total / nota_maxima) * 10
+    else:
+        nota_final = 0
+
     return {
         "estado": "ok",
-        "nota": round(nota_total, 2),
+        "nota": round(nota_final, 2),  # Nota normalizada a escala 0-10
+        "nota_sin_normalizar": round(nota_total, 2),  # Para debugging
+        "nota_maxima_sin_normalizar": nota_maxima,  # Para debugging
         "retroalimentacion": "".join(retroalimentacion)
     }
 
