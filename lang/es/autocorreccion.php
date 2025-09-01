@@ -1,0 +1,31 @@
+<?php
+$string['pluginname'] = 'Autocorrección de Tareas';
+$string['autocorreccion'] = 'Corrección Automática';
+$string['modulename'] = 'Autocorrección';
+$string['modulenameplural'] = 'Autocorrecciones';
+$string['modulename_help'] = 'Descripción del módulo autocorrección para la ayuda contextual.';
+$string['fileupload'] = 'Sube tu archivo de Python';
+$string['feedback'] = 'Comentarios de la corrección';
+$string['result'] = 'Resultados de la corrección';
+$string['autocorreccion:view'] = 'Ver actividad de autocorrección';
+$string['autocorreccion:submit'] = 'Enviar tareas para autocorrección';
+$string['autocorreccion:manage'] = 'Gestionar correcciones';
+$string['autocorreccion:viewallsubmissions'] = 'Ver todas las entregas';
+$string['submit'] = 'Subir y Corregir';
+$string['nosubmissions'] = 'Aún no has hecho ninguna entrega';
+$string['lastsubmission'] = 'Última entrega';
+$string['nofiles'] = 'Sin archivos';
+$string['edit'] = 'Editar';
+$string['nofeedback'] = 'Sin feedback disponible';
+$string['statistics'] = 'Estadísticas';
+$string['totalsubmissions'] = 'Total entregas';
+$string['averagegrade'] = 'Nota media';
+$string['bestgrade'] = 'Mejor nota';
+$string['submissionhistory'] = 'Historial anterior';
+$string['dberror'] = 'Error al acceder a los datos. Por favor intente más tarde.';
+$string['unknownerror'] = 'Ocurrió un error inesperado.';
+$string['date'] = 'Fecha';
+$string['grade'] = 'Nota';
+$string['strftimedatetime'] = '%%d/%%m/%%Y %%H:%%M';
+$string['strftimedateshort'] = '%%d/%%m/%%Y';
+?>
