@@ -28,4 +28,11 @@ $string['date'] = 'Date';
 $string['grade'] = 'Grade';
 $string['strftimedatetime'] = '%%d/%%m/%%Y %%H:%%M';
 $string['strftimedateshort'] = '%%d/%%m/%%Y';
+$string['rubric_settings'] = 'Rubric Settings';
+$string['rubric_type'] = 'Rubric Type';
+$string['numeric_grade'] = 'Numeric Grade';
+$string['apto_noapto'] = 'Pass/Fail';
+$string['max_nbgrader_grade'] = 'Maximum NBGrader Grade';
+$string['apto_threshold'] = 'Pass Threshold';
+$string['mejora_threshold'] = 'Needs Improvement Threshold';
 ?>

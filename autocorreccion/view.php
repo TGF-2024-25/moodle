@@ -3,10 +3,12 @@ require_once('../../config.php');
 require_login();
 
 $id = required_param('id', PARAM_INT);
-$userid = optional_param('userid', 0, PARAM_INT); // Nuevo parámetro para vista de profesor
+$userid = optional_param('userid', 0, PARAM_INT);
 $cm = get_coursemodule_from_id('autocorreccion', $id, 0, false, MUST_EXIST);
 $course = get_course($cm->course);
 $context = context_module::instance($cm->id);
+// Obtener la configuración de la actividad
+$autocorreccion = $DB->get_record('autocorreccion', ['id' => $cm->instance]);
 
 require_course_login($course, true, $cm);
 
@@ -29,7 +31,6 @@ echo $OUTPUT->header();
 
 // ========== VISTA PARA PROFESOR ==========
 if (autocorreccion_is_teacher($context)) {
-    // Listado de estudiantes
     echo html_writer::tag('h2', 'Listado de estudiantes');
     
     $sql_estudiantes = "SELECT DISTINCT u.id, u.firstname, u.lastname 
@@ -55,7 +56,6 @@ if (autocorreccion_is_teacher($context)) {
         echo $OUTPUT->notification('No hay entregas de estudiantes aún', 'notifyinfo');
     }
     
-    // Vista detallada de un estudiante específico
     if ($userid) {
         $estudiante = $DB->get_record('user', ['id' => $userid]);
         echo html_writer::tag('h3', 'Entregas de '.fullname($estudiante));
@@ -66,7 +66,6 @@ if (autocorreccion_is_teacher($context)) {
         ], 'timecreated DESC');
         
         if (!empty($entregas)) {
-            // Mostrar estadísticas (VISTA PROFESOR)
             echo html_writer::start_tag('div', ['class' => 'stats-box']);
             echo html_writer::tag('h4', 'Estadísticas del estudiante');
             echo html_writer::start_tag('ul');
@@ -118,12 +117,26 @@ if (autocorreccion_is_teacher($context)) {
                 }
                 
                 // Feedback combinado (automático + profesor)
-                $feedback_cell = format_text($entrega->feedback ?? '', FORMAT_HTML);
-                if (!empty($entrega->teacher_feedback)) {
-                    $feedback_cell .= html_writer::empty_tag('br');
-                    $feedback_cell .= html_writer::tag('strong', 'Comentario profesor: ');
-                    $feedback_cell .= shorten_text(format_text($entrega->teacher_feedback, FORMAT_HTML), 100);
+                $feedback_content = '';
+                if (!empty($entrega->feedback)) {
+                    $lineas_feedback = explode("\n", $entrega->feedback);
+                    foreach ($lineas_feedback as $linea) {
+                        if (trim($linea)) {
+                            $feedback_content .= html_writer::tag('div', s($linea), ['class' => 'feedback-line']);
+                        }
+                    }
                 }
+
+                if (!empty($entrega->teacher_feedback)) {
+                    if (!empty($feedback_content)) {
+                        $feedback_content .= html_writer::empty_tag('br');
+                    }
+                    $feedback_content .= html_writer::tag('strong', 'Comentario profesor: ');
+                    $feedback_content .= html_writer::tag('div', format_text($entrega->teacher_feedback, FORMAT_HTML), 
+                        ['class' => 'teacher-feedback']);
+                }
+
+                $feedback_cell = $feedback_content;
                 
                 $editurl = new moodle_url('/mod/autocorreccion/editfeedback.php', [
                     'id' => $entrega->id,
@@ -134,18 +147,18 @@ if (autocorreccion_is_teacher($context)) {
                 $nota_cell = html_writer::tag('div', 'NbGrader: '.($entrega->nota ?? 'N/A'), [
                     'class' => ($entrega->nota >= 5 ? 'nota-alta' : 'nota-baja')
                 ]);
+
                 if (!empty($entrega->rubric_grade)) {
+                    $rubric_class = autocorreccion_get_rubric_class($entrega->rubric_grade, $autocorreccion);
                     $nota_cell .= html_writer::tag('div', 'Rúbrica: '.$entrega->rubric_grade, [
-                        'class' => 'rubric-grade ' . ($entrega->rubric_grade >= 5 ? 'nota-alta' : 'nota-baja')
+                        'class' => 'rubric-grade ' . $rubric_class
                     ]);
                 }
 
                 $table->data[] = [
                     userdate($entrega->timecreated, get_string('strftimedatetime')),
                     $archivos ?: '-',
-                    html_writer::tag('span', $entrega->nota ?? '-', [
-                        'class' => ($entrega->nota >= 5 ? 'nota-alta' : 'nota-baja')
-                    ]),
+                    $nota_cell,
                     $feedback_cell,
                     $OUTPUT->action_icon($editurl, new pix_icon('i/edit', 'Editar'), null, [
                         'class' => 'btn-edit-feedback'
@@ -161,7 +174,6 @@ if (autocorreccion_is_teacher($context)) {
 } 
 // ========== VISTA PARA ESTUDIANTE ==========
 else {
-    // Formulario de subida (solo para estudiantes)
     if (autocorreccion_can_submit($context)) {
         echo html_writer::tag('h2', get_string('fileupload', 'autocorreccion'));
         echo html_writer::start_tag('form', [
@@ -178,10 +190,10 @@ else {
         echo html_writer::tag('div', 
             html_writer::empty_tag('input', [
                 'type' => 'file',
-                'name' => 'files[]', // Permite varios archivos (array)
+                'name' => 'files[]',
                 'accept' => '.ipynb,.py',
                 'required' => 'required',
-                'multiple' => 'multiple' // Varios archivos
+                'multiple' => 'multiple'
             ]) . 
             html_writer::empty_tag('input', [
                 'type' => 'submit',
@@ -193,7 +205,6 @@ else {
         echo html_writer::end_tag('form');
     }
 
-    // Obtener entregas del estudiante
     $records = $DB->get_records('autocorreccion_envios', [
         'userid' => $USER->id,
         'autocorreccionid' => $cm->instance
@@ -206,7 +217,6 @@ else {
             exit;
         }
 
-        // Mostrar última entrega destacada
         $ultima = reset($records);
         echo html_writer::start_tag('div', ['class' => 'ultima-entrega-destacada']);
         echo html_writer::tag('h3', get_string('lastsubmission', 'autocorreccion'));
@@ -238,26 +248,41 @@ else {
                 ['class' => (isset($ultima->nota) && $ultima->nota >= 5 ? 'nota-alta' : 'nota-baja')])
         ];
         
-        // Añadir nota de rúbrica si existe
         if (!empty($ultima->rubric_grade)) {
-            $info_items['Nota Rúbrica'] = html_writer::tag('span', 
-                $ultima->rubric_grade, 
-                ['class' => ($ultima->rubric_grade >= 5 ? 'nota-alta' : 'nota-baja')]);
+            // Si es rúbrica apto/no apto, mostrar el texto en lugar del número
+            if (!is_numeric($ultima->rubric_grade)) {
+                $rubric_class = autocorreccion_get_rubric_class($ultima->rubric_grade, $autocorreccion);
+                $info_items['Nota Rúbrica'] = html_writer::tag('span', 
+                    $ultima->rubric_grade, 
+                    ['class' => 'rubric-grade ' . $rubric_class]);
+            } else {
+                // Para rúbrica numérica, mostrar el número formateado
+                $rubric_class = autocorreccion_get_rubric_class($ultima->rubric_grade, $autocorreccion);
+                $info_items['Nota Rúbrica'] = html_writer::tag('span', 
+                    number_format($ultima->rubric_grade, 2), 
+                    ['class' => 'rubric-grade ' . $rubric_class]);
+            }
         }
 
         foreach ($info_items as $label => $content) {
-            if (empty($label) || empty($content)) {
-                continue; // Omitir elementos vacíos
-            }
+            if (empty($label) || empty($content)) continue;
             echo html_writer::start_tag('div', ['class' => 'info-item']);
             echo html_writer::tag('span', $label, ['class' => 'info-icon']);
             echo html_writer::tag('div', $content, ['class' => 'info-content']);
             echo html_writer::end_tag('div');
         }
         
-        // Mostrar feedback combinado
         echo html_writer::start_tag('div', ['class' => 'feedback-container']);
-        echo nl2br($ultima->feedback ?? get_string('nofeedback', 'autocorreccion'));
+        if (!empty($ultima->feedback)) {
+            $lineas_feedback = explode("\n", $ultima->feedback);
+            foreach ($lineas_feedback as $linea) {
+                if (trim($linea)) {
+                    echo html_writer::tag('div', s($linea), ['class' => 'feedback-line']);
+                }
+            }
+        } else {
+            echo get_string('nofeedback', 'autocorreccion');
+        }
         
         if (!empty($ultima->teacher_feedback)) {
             echo html_writer::tag('h4', 'Comentario del profesor:', ['class' => 'teacher-feedback-title']);
@@ -268,7 +293,6 @@ else {
         
         echo html_writer::end_tag('div');
 
-        // Mostrar estadísticas (VISTA ESTUDIANTE)
         echo html_writer::start_tag('div', ['class' => 'stats-box']);
         echo html_writer::tag('h4', get_string('statistics', 'autocorreccion'));
         echo html_writer::start_tag('ul');
@@ -293,7 +317,6 @@ else {
         echo html_writer::end_tag('ul');
         echo html_writer::end_tag('div');
 
-        // Mostrar historial (excluyendo la última entrega ya mostrada)
         $historial = array_slice($records, 1);
         if (!empty($historial)) {
             echo html_writer::tag('h3', get_string('submissionhistory', 'autocorreccion'));
@@ -327,12 +350,26 @@ else {
                 }
                 
                 // Feedback combinado para el historial
-                $feedback_cell = format_text($record->feedback ?? '', FORMAT_HTML);
-                if (!empty($record->teacher_feedback)) {
-                    $feedback_cell .= html_writer::empty_tag('br');
-                    $feedback_cell .= html_writer::tag('strong', 'Comentario profesor: ');
-                    $feedback_cell .= format_text($record->teacher_feedback, FORMAT_HTML);
+                $feedback_content = '';
+                if (!empty($record->feedback)) {
+                    $lineas_feedback = explode("\n", $record->feedback);
+                    foreach ($lineas_feedback as $linea) {
+                        if (trim($linea)) {
+                            $feedback_content .= html_writer::tag('div', s($linea), ['class' => 'feedback-line']);
+                        }
+                    }
                 }
+
+                if (!empty($record->teacher_feedback)) {
+                    if (!empty($feedback_content)) {
+                        $feedback_content .= html_writer::empty_tag('br');
+                    }
+                    $feedback_content .= html_writer::tag('strong', 'Comentario profesor: ');
+                    $feedback_content .= html_writer::tag('div', format_text($record->teacher_feedback, FORMAT_HTML), 
+                        ['class' => 'teacher-feedback']);
+                }
+
+                $feedback_cell = $feedback_content;
                 
                 $table->data[] = [
                     userdate($record->timecreated, get_string('strftimedateshort')),

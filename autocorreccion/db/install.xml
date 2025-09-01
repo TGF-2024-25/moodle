@@ -9,6 +9,8 @@
                 <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
                 <FIELD NAME="intro" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="introformat" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="rubric_type" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" COMMENT="0=numérica,1=apto/no apto"/>
+                <FIELD NAME="rubric_config" TYPE="text" NOTNULL="false" COMMENT="Configuración JSON de la rúbrica"/>
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
             </FIELDS>
             <KEYS>

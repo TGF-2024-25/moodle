@@ -63,5 +63,23 @@ function xmldb_autocorreccion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025072801, 'mod', 'autocorreccion');
     }
 
+    if ($oldversion < 2025090101) {
+        $table = new xmldb_table('autocorreccion');
+        
+        $fields_to_add = [
+            ['rubric_type', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'introformat'],
+            ['rubric_config', XMLDB_TYPE_TEXT, null, null, null, null, null, 'rubric_type']
+        ];
+        
+        foreach ($fields_to_add as $field_spec) {
+            $field = new xmldb_field(...$field_spec);
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2025090101, 'mod', 'autocorreccion');
+    }
+
     return true;
 }

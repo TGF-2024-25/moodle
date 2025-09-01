@@ -126,3 +126,67 @@ function autocorreccion_pluginfile($course, $cm, $context, $filearea, $args, $fo
 
     send_stored_file($file, 0, 0, $forcedownload, $options);
 }
+
+function autocorreccion_calculate_rubric_grade($nbgrader_grade, $autocorreccion) {
+    if ($autocorreccion->rubric_type == 0) {
+        // Rúbrica numérica: ajustar escala
+        $max_nbgrader = !empty($autocorreccion->max_nbgrader_grade) ? 
+            (float)$autocorreccion->max_nbgrader_grade : 10;
+        
+        if ($max_nbgrader > 0) {
+            return ($nbgrader_grade / $max_nbgrader) * 10;
+        }
+        return $nbgrader_grade;
+    } else {
+        // Rúbrica apto/no apto
+        $apto_threshold = !empty($autocorreccion->apto_threshold) ? 
+            (float)$autocorreccion->apto_threshold : 6;
+        $mejora_threshold = !empty($autocorreccion->mejora_threshold) ? 
+            (float)$autocorreccion->mejora_threshold : 4;
+        
+        if ($nbgrader_grade >= $apto_threshold) {
+            return 'Apto';
+        } elseif ($nbgrader_grade >= $mejora_threshold) {
+            return 'Necesita mejorar';
+        } else {
+            return 'No apto';
+        }
+    }
+}
+
+function autocorreccion_get_rubric_class($rubric_grade, $autocorreccion = null) {
+    // Si no hay configuración específica, usar valores por defecto
+    $apto_threshold = 6;
+    $mejora_threshold = 4;
+    
+    // Usar valores configurados si están disponibles
+    if ($autocorreccion) {
+        if (isset($autocorreccion->apto_threshold)) {
+            $apto_threshold = (float)$autocorreccion->apto_threshold;
+        }
+        if (isset($autocorreccion->mejora_threshold)) {
+            $mejora_threshold = (float)$autocorreccion->mejora_threshold;
+        }
+    }
+    
+    if (is_numeric($rubric_grade)) {
+        $numeric_grade = (float)$rubric_grade;
+        
+        if ($numeric_grade >= $apto_threshold) {
+            return 'rubric-apto';
+        } elseif ($numeric_grade >= $mejora_threshold) {
+            return 'rubric-mejora';
+        } else {
+            return 'rubric-noapto';
+        }
+    } else {
+        // Para calificaciones no numéricas (Apto/No Apto)
+        if ($rubric_grade === 'Apto') {
+            return 'rubric-apto';
+        } elseif ($rubric_grade === 'Necesita mejorar') {
+            return 'rubric-mejora';
+        } else {
+            return 'rubric-noapto';
+        }
+    }
+}
