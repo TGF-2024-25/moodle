@@ -1,0 +1,379 @@
+/* Estilos principales del contenedor */
+.mod-autocorreccion-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========== ESTILOS COMUNES ========== */
+/* Estilo para notas */
+.nota-alta {
+    color: #2e7d32;
+    font-weight: bold;
+    background-color: rgba(46, 125, 50, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.nota-baja {
+    color: #c62828;
+    font-weight: bold;
+    background-color: rgba(198, 40, 40, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Estilo para los enlaces de estudiantes */
+.estudiante-link {
+    color: #0066cc;
+    text-decoration: underline;
+}
+
+/* ========== ESTILOS PARA PROFESOR ========== */
+.lista-estudiantes {
+    list-style-type: disc !important;
+    padding-left: 40px !important;
+    margin: 20px 0;
+    border: 1px solid #dee5f2;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background: white;
+}
+
+.lista-estudiantes li {
+    padding: 8px 0 !important;
+    margin: 5px 0;
+    border-bottom: none !important;
+}
+
+.lista-estudiantes li:last-child {
+    border-bottom: none;
+}
+
+.lista-estudiantes li:hover {
+    background-color: #f5f9ff;
+}
+
+.lista-estudiantes a.estudiante-link {
+    color: #0066cc !important;
+    text-decoration: underline !important;
+    padding: 0 !important;
+    background: none !important;
+}
+
+.lista-estudiantes a.estudiante-link:hover {
+    color: #004080 !important;
+    text-decoration: none !important;
+}
+
+.entregas-table {
+    margin-top: 20px;
+}
+
+.entregas-table th {
+    background-color: #0066cc;
+    color: white;
+}
+
+.btn-edit-feedback {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: #0066cc;
+}
+
+/* ========== ESTILOS PARA ESTUDIANTE ========== */
+/* Estilo mejorado para la última entrega destacada */
+.ultima-entrega-destacada {
+    background: linear-gradient(135deg, #f5f9ff 0%, #e6f2ff 100%);
+    border-left: 5px solid #0066cc;
+    padding: 25px;
+    margin: 30px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.15);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #cce0ff;
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.ultima-entrega-destacada::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: linear-gradient(to bottom, #0066cc, #00aaff, #0066cc);
+}
+
+.ultima-entrega-destacada:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 102, 204, 0.2);
+}
+
+.ultima-entrega-destacada h3 {
+    color: #004080;
+    margin: 0 0 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0, 102, 204, 0.3);
+    font-size: 1.5em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Estilos mejorados para elementos de información */
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 12px 15px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.info-item:hover {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.info-icon {
+    margin-right: 12px;
+    font-size: 1.3em;
+    color: #0066cc;
+    min-width: 30px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-content {
+    flex: 1;
+    color: #333;
+    line-height: 1.5;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}
+
+/* Estilo mejorado para el feedback */
+.feedback-container {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 10px;
+    border: 1px solid #d9e7ff;
+    color: #333;
+    line-height: 1.6;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Feedback del profesor */
+.teacher-feedback-title {
+    color: #0066cc;
+    margin-top: 15px;
+    font-size: 1.1em;
+}
+
+.teacher-feedback-content {
+    background-color: #f8f9fa;
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 3px solid #0066cc;
+    margin-top: 8px;
+}
+
+/* Estilo mejorado para el formulario */
+.submission-form {
+    background: #f8fafd;
+    padding: 25px;
+    border-radius: 8px;
+    margin: 30px 0;
+    border: 1px solid #dee5f2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.submission-form h2 {
+    margin-top: 0;
+    color: #004080;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 102, 204, 0.2);
+}
+
+.form-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.form-group input[type="file"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    flex: 1;
+    min-width: 250px;
+    transition: border 0.2s ease;
+}
+
+.form-group input[type="file"]:hover {
+    border-color: #0066cc;
+}
+
+.btn-primary {
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0052a3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+}
+
+/* Estilo mejorado para las estadísticas */
+.stats-box {
+    background: linear-gradient(135deg, #f8fafd 0%, #f0f5ff 100%);
+    padding: 20px;
+    border-radius: 8px;
+    margin: 30px 0;
+    border: 1px solid #dee5f2;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.stats-box h4 {
+    margin-top: 0;
+    color: #004080;
+    font-size: 1.3em;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 102, 204, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stats-box ul {
+    margin: 0;
+    padding-left: 25px;
+    list-style-type: none;
+}
+
+.stats-box li {
+    margin-bottom: 8px;
+    padding-left: 25px;
+    position: relative;
+    line-height: 1.6;
+}
+
+.stats-box li:before {
+    content: "•";
+    color: #0066cc;
+    font-size: 1.5em;
+    position: absolute;
+    left: 0;
+    top: -2px;
+}
+
+/* Estilo mejorado para la tabla */
+.generaltable {
+    width: 100%;
+    margin-bottom: 30px;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.generaltable th {
+    background-color: #0066cc;
+    color: white;
+    text-align: left;
+    padding: 12px 15px;
+    font-weight: 500;
+}
+
+.generaltable td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e0e7ff;
+    background: white;
+    vertical-align: top;
+}
+
+.generaltable tr:last-child td {
+    border-bottom: none;
+}
+
+.generaltable tr:hover td {
+    background-color: #f5f9ff;
+}
+
+.rubric-grade {
+    font-weight: bold;
+    margin-top: 5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: rgba(106, 27, 154, 0.1);
+}
+
+.btn-volver {
+    margin-top: 20px;
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-volver:hover {
+    background-color: #5a6268;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .mod-autocorreccion-container {
+        padding: 15px;
+    }
+    
+    .ultima-entrega-destacada {
+        padding: 20px 15px;
+    }
+    
+    .form-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .form-group input[type="file"] {
+        min-width: auto;
+    }
+    
+    .btn-primary {
+        width: 100%;
+    }
+}
