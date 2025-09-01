@@ -129,7 +129,7 @@ try {
     foreach ($_FILES['files']['tmp_name'] as $key => $tmp_name) {
         if ($_FILES['files']['error'][$key] !== UPLOAD_ERR_OK) {
             echo $OUTPUT->notification("Error en archivo {$_FILES['files']['name'][$key]}: " . 
-                 $this->get_upload_error_message($_FILES['files']['error'][$key]), 'notifyproblem');
+                 get_upload_error_message($_FILES['files']['error'][$key]), 'notifyproblem');
             continue;
         }
 
@@ -151,8 +151,11 @@ try {
             $result = procesar_archivo($temp_file, $ext === 'py');
             
             $notas[] = $result['nota'];
-            // $feedbacks[] = "<strong>Archivo:</strong> " . s($filename) . "\n" . $result['feedback'];
-            $feedbacks[] = $result['feedback'];
+            $feedbacks[] = [
+                'filename' => $filename,
+                'feedback' => $result['feedback'],
+                'saved_filename' => $result['archivo']
+            ];
             $archivos_subidos[] = $result['archivo'];
             
             // Mover a uploads final
@@ -172,20 +175,26 @@ try {
         // Calcular nota promedio
         $nota_final = !empty($notas) ? array_sum($notas) / count($notas) : 0;
         
-        // Formatear el feedback correctamente
+        // Formatear el feedback correctamente (CORREGIDO)
         $feedback_combinado = "";
-        foreach ($feedbacks as $index => $feedback) {
-            $filename = $_FILES['files']['name'][$index];
-            $feedback_combinado .= "<strong>Archivo: " . s($filename) . "</strong><br>";
-            $feedback_combinado .= "<div style='background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 5px 0;'>";
-            $feedback_combinado .= nl2br(s($feedback)) . "</div><br>";
+        foreach ($feedbacks as $item) {
+            $feedback_combinado .= "Archivo: " . s($item['filename']) . "\n";
+            
+            // Procesar el feedback para mejor legibilidad
+            $lineas = explode("\n", $item['feedback']);
+            foreach ($lineas as $linea) {
+                if (trim($linea)) {
+                    $feedback_combinado .= $linea . "\n";
+                }
+            }
+            $feedback_combinado .= "\n"; // Espacio entre archivos
         }
 
         // Mostrar resultados
         echo $OUTPUT->notification("Archivos procesados correctamente", 'success');
         echo "<div class='alert alert-success'><strong>Nota promedio:</strong> " . round($nota_final, 2) . "</div>";
         echo "<details class='mt-3'><summary class='btn btn-secondary'>Ver feedback detallado</summary>";
-        echo "<div class='p-3 mt-2 bg-light border rounded'>" . $feedback_combinado . "</div></details>";
+        echo "<div class='p-3 mt-2 bg-light border rounded'>" . nl2br(s($feedback_combinado)) . "</div></details>";
 
         // Botón volver
         echo '<div class="mt-3">';
@@ -199,11 +208,10 @@ try {
         $record->userid = $USER->id;
         $record->autocorreccionid = $cm->instance;
         $record->nota = $nota_final;
-        $record->feedback = strip_tags($feedback_combinado); // Guardar sin HTML
+        $record->feedback = $feedback_combinado; // Ya está sin HTML
         $record->files = json_encode($archivos_subidos);
         $record->timecreated = time();
         $record->timemodified = time();
-
 
         try {
             $DB->insert_record('autocorreccion_envios', $record);
