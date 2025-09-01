@@ -336,6 +336,24 @@
     background-color: #f5f9ff;
 }
 
+.rubric-grade {
+    font-weight: bold;
+    margin-top: 5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: rgba(106, 27, 154, 0.1);
+}
+
+.btn-volver {
+    margin-top: 20px;
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-volver:hover {
+    background-color: #5a6268;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .mod-autocorreccion-container {

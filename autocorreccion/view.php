@@ -129,7 +129,17 @@ if (autocorreccion_is_teacher($context)) {
                     'id' => $entrega->id,
                     'courseid' => $course->id
                 ]);
-                
+
+                // Mostrar ambas notas (NbGrader y Rúbrica)
+                $nota_cell = html_writer::tag('div', 'NbGrader: '.($entrega->nota ?? 'N/A'), [
+                    'class' => ($entrega->nota >= 5 ? 'nota-alta' : 'nota-baja')
+                ]);
+                if (!empty($entrega->rubric_grade)) {
+                    $nota_cell .= html_writer::tag('div', 'Rúbrica: '.$entrega->rubric_grade, [
+                        'class' => 'rubric-grade ' . ($entrega->rubric_grade >= 5 ? 'nota-alta' : 'nota-baja')
+                    ]);
+                }
+
                 $table->data[] = [
                     userdate($entrega->timecreated, get_string('strftimedatetime')),
                     $archivos ?: '-',
@@ -168,9 +178,10 @@ else {
         echo html_writer::tag('div', 
             html_writer::empty_tag('input', [
                 'type' => 'file',
-                'name' => 'file',
+                'name' => 'files[]', // Permite varios archivos (array)
                 'accept' => '.ipynb,.py',
-                'required' => 'required'
+                'required' => 'required',
+                'multiple' => 'multiple' // Varios archivos
             ]) . 
             html_writer::empty_tag('input', [
                 'type' => 'submit',
@@ -220,14 +231,24 @@ else {
         }
 
         $info_items = [
-            get_string('date') => userdate($ultima->timecreated, get_string('strftimedatetime')),
-            get_string('files') => $archivos ?: get_string('nofiles', 'autocorreccion'),
+            get_string('date') => !empty($ultima->timecreated) ? userdate($ultima->timecreated, get_string('strftimedatetime')) : '-',
+            get_string('files') => !empty($archivos) ? $archivos : get_string('nofiles', 'autocorreccion'),
             get_string('grade') => html_writer::tag('span', 
-                $ultima->nota ?? 'N/A', 
-                ['class' => ($ultima->nota >= 5 ? 'nota-alta' : 'nota-baja')])
+                isset($ultima->nota) ? $ultima->nota : 'N/A', 
+                ['class' => (isset($ultima->nota) && $ultima->nota >= 5 ? 'nota-alta' : 'nota-baja')])
         ];
         
+        // Añadir nota de rúbrica si existe
+        if (!empty($ultima->rubric_grade)) {
+            $info_items['Nota Rúbrica'] = html_writer::tag('span', 
+                $ultima->rubric_grade, 
+                ['class' => ($ultima->rubric_grade >= 5 ? 'nota-alta' : 'nota-baja')]);
+        }
+
         foreach ($info_items as $label => $content) {
+            if (empty($label) || empty($content)) {
+                continue; // Omitir elementos vacíos
+            }
             echo html_writer::start_tag('div', ['class' => 'info-item']);
             echo html_writer::tag('span', $label, ['class' => 'info-icon']);
             echo html_writer::tag('div', $content, ['class' => 'info-content']);
@@ -236,10 +257,9 @@ else {
         
         // Mostrar feedback combinado
         echo html_writer::start_tag('div', ['class' => 'feedback-container']);
-        echo format_text($ultima->feedback ?? get_string('nofeedback', 'autocorreccion'), FORMAT_HTML);
-
+        echo nl2br($ultima->feedback ?? get_string('nofeedback', 'autocorreccion'));
+        
         if (!empty($ultima->teacher_feedback)) {
-            echo html_writer::tag('hr');
             echo html_writer::tag('h4', 'Comentario del profesor:', ['class' => 'teacher-feedback-title']);
             echo html_writer::tag('div', format_text($ultima->teacher_feedback, FORMAT_HTML), 
                 ['class' => 'teacher-feedback-content']);
