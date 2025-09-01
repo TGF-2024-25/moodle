@@ -42,6 +42,81 @@
     text-decoration: underline;
 }
 
+/* ========== ESTILOS PARA RÚBRICAS ========== */
+.rubric-apto {
+    color: #28a745;
+    font-weight: bold;
+    background-color: #d4edda;
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-top: 3px;
+}
+
+.rubric-mejora {
+    color: #856404;
+    font-weight: bold;
+    background-color: #fff3cd;
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-top: 3px;
+}
+
+.rubric-noapto {
+    color: #721c24;
+    font-weight: bold;
+    background-color: #f8d7da;
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-top: 3px;
+}
+
+/* Estilos para feedback */
+.feedback-line {
+    margin: 3px 0;
+    padding-left: 10px;
+    white-space: pre-wrap;
+    font-family: monospace;
+    line-height: 1.4;
+}
+
+.teacher-feedback {
+    background-color: #f8f9fa;
+    padding: 8px 12px;
+    border-left: 3px solid #007bff;
+    margin: 5px 0;
+    border-radius: 3px;
+    font-style: italic;
+}
+
+/* Visualización de archivos múltiples */
+.file-link {
+    display: block;
+    margin: 3px 0;
+    padding: 3px 8px;
+    background-color: #f8f9fa;
+    border-radius: 3px;
+    text-decoration: none;
+    color: #007bff;
+    border: 1px solid #dee2e6;
+}
+
+.file-link:hover {
+    background-color: #e9ecef;
+    text-decoration: underline;
+}
+
+/* Asegurar que los archivos se muestren en líneas separadas */
+.info-content br,
+.feedback-container br {
+    display: block;
+    content: "";
+    margin: 5px 0;
+    line-height: 0;
+}
+
 /* ========== ESTILOS PARA PROFESOR ========== */
 .lista-estudiantes {
     list-style-type: disc !important;
@@ -97,7 +172,7 @@
 }
 
 /* ========== ESTILOS PARA ESTUDIANTE ========== */
-/* Estilo mejorado para la última entrega destacada */
+/* Estilo para la última entrega destacada */
 .ultima-entrega-destacada {
     background: linear-gradient(135deg, #f5f9ff 0%, #e6f2ff 100%);
     border-left: 5px solid #0066cc;
@@ -139,7 +214,7 @@
     gap: 10px;
 }
 
-/* Estilos mejorados para elementos de información */
+/* Estilos para elementos de información */
 .info-item {
     display: flex;
     align-items: flex-start;
@@ -170,14 +245,10 @@
     flex: 1;
     color: #333;
     line-height: 1.5;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: auto;
+    text-align: left;
 }
 
-/* Estilo mejorado para el feedback */
+/* Estilo para el feedback */
 .feedback-container {
     background: rgba(255, 255, 255, 0.8);
     padding: 15px;
@@ -194,6 +265,7 @@
     color: #0066cc;
     margin-top: 15px;
     font-size: 1.1em;
+    font-weight: 600;
 }
 
 .teacher-feedback-content {
@@ -202,9 +274,10 @@
     border-radius: 6px;
     border-left: 3px solid #0066cc;
     margin-top: 8px;
+    font-style: italic;
 }
 
-/* Estilo mejorado para el formulario */
+/* Estilo para el formulario */
 .submission-form {
     background: #f8fafd;
     padding: 25px;
@@ -259,7 +332,7 @@
     box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
 }
 
-/* Estilo mejorado para las estadísticas */
+/* Estilo para las estadísticas */
 .stats-box {
     background: linear-gradient(135deg, #f8fafd 0%, #f0f5ff 100%);
     padding: 20px;
@@ -302,7 +375,7 @@
     top: -2px;
 }
 
-/* Estilo mejorado para la tabla */
+/* Estilo para la tabla */
 .generaltable {
     width: 100%;
     margin-bottom: 30px;
@@ -341,7 +414,6 @@
     margin-top: 5px;
     padding: 2px 6px;
     border-radius: 4px;
-    background-color: rgba(106, 27, 154, 0.1);
 }
 
 .btn-volver {
@@ -375,5 +447,15 @@
     
     .btn-primary {
         width: 100%;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .info-icon {
+        margin-bottom: 5px;
+        margin-right: 0;
     }
 }

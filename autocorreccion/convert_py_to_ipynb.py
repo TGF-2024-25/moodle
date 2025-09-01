@@ -52,13 +52,13 @@ def create_nbgrader_cell(code_content, cell_id, points=5, grade=True, locked=Fal
     return cell
 
 def convert_py_to_ipynb(py_file, ipynb_file):
-    """Convierte archivo Python a Jupyter Notebook con nbgrader"""
+    """Convierte archivo Python a Jupyter Notebook básico"""
     
     # Leer el archivo Python
     with open(py_file, 'r', encoding='utf-8') as f:
         code_content = f.read()
     
-    # Crear nuevo notebook
+    # Crear nuevo notebook con una sola celda
     nb = nbformat.v4.new_notebook()
     nb.metadata = {
         "kernelspec": {
@@ -68,35 +68,9 @@ def convert_py_to_ipynb(py_file, ipynb_file):
         }
     }
     
-    # Extraer funciones y tests
-    functions = extract_functions_with_tests(code_content)
-    
-    if not functions:
-        # Si no hay funciones, crear una celda general
-        cell = create_nbgrader_cell(
-            code_content, 
-            "codigo_principal", 
-            points=10
-        )
-        nb.cells.append(cell)
-    else:
-        # Crear celdas para cada función
-        for i, func in enumerate(functions):
-            # Celda con la función
-            cell_code = func['code']
-            
-            # Añadir tests si existen
-            if func['tests']:
-                cell_code += '\n\n# Tests\n'
-                for test in func['tests']:
-                    cell_code += test + '\n'
-            
-            cell = create_nbgrader_cell(
-                cell_code,
-                f"funcion_{func['name']}",
-                points=5  # Puntos configurables por función
-            )
-            nb.cells.append(cell)
+    # Crear una sola celda con todo el código
+    cell = nbformat.v4.new_code_cell(code_content)
+    nb.cells.append(cell)
     
     # Guardar el notebook
     with open(ipynb_file, 'w', encoding='utf-8') as f:

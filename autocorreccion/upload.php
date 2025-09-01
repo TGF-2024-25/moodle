@@ -100,14 +100,22 @@ function procesar_archivo($archivo, $es_python = false) {
                escapeshellarg($USER->username) . " 2>&1";
     
     $output = shell_exec($command);
-    $result = json_decode($output, true);
-    
-    if (!$result) {
-        throw new Exception("La evaluación devolvió un formato inválido: " . substr($output, 0, 200));
+    // Limpiar posibles mensajes de debug antes del JSON
+    $json_start = strpos($output, '{');
+    if ($json_start !== false) {
+        $output = substr($output, $json_start); // Tomar solo desde el inicio del JSON
     }
-    
-    if (!isset($result['estado']) || $result['estado'] !== 'ok') {
-        throw new Exception($result['error'] ?? "Error desconocido al evaluar");
+
+    $result = json_decode($output, true);
+
+    if (!$result) {
+        // Intentar limpiar más el output
+        $output_limpio = preg_replace('/^[^{]*/', '', $output); // Eliminar todo antes del {
+        $result = json_decode($output_limpio, true);
+        
+        if (!$result) {
+            throw new Exception("La evaluación devolvió un formato inválido. Output: " . substr($output, 0, 200));
+        }
     }
     
     return [
@@ -149,7 +157,8 @@ try {
 
         try {
             $result = procesar_archivo($temp_file, $ext === 'py');
-            
+            error_log("Resultado de procesar_archivo: " . print_r($result, true));     
+
             $notas[] = $result['nota'];
             $feedbacks[] = [
                 'filename' => $filename,
@@ -174,8 +183,12 @@ try {
     if (!empty($archivos_subidos)) {
         // Calcular nota promedio
         $nota_final = !empty($notas) ? array_sum($notas) / count($notas) : 0;
+
+        // Calcular nota de rúbrica
+        $autocorreccion = $DB->get_record('autocorreccion', ['id' => $cm->instance]);
+        $rubric_grade = autocorreccion_calculate_rubric_grade($nota_final, $autocorreccion);
         
-        // Formatear el feedback correctamente (CORREGIDO)
+        // Formatear el feedback correctamente
         $feedback_combinado = "";
         foreach ($feedbacks as $item) {
             $feedback_combinado .= "Archivo: " . s($item['filename']) . "\n";
@@ -192,7 +205,7 @@ try {
 
         // Mostrar resultados
         echo $OUTPUT->notification("Archivos procesados correctamente", 'success');
-        echo "<div class='alert alert-success'><strong>Nota promedio:</strong> " . round($nota_final, 2) . "</div>";
+        echo "<div class='alert alert-success'><strong>Nota promedio:</strong> " . number_format($nota_final, 2) . "</div>";
         echo "<details class='mt-3'><summary class='btn btn-secondary'>Ver feedback detallado</summary>";
         echo "<div class='p-3 mt-2 bg-light border rounded'>" . nl2br(s($feedback_combinado)) . "</div></details>";
 
@@ -207,8 +220,9 @@ try {
         $record = new stdClass();
         $record->userid = $USER->id;
         $record->autocorreccionid = $cm->instance;
-        $record->nota = $nota_final;
-        $record->feedback = $feedback_combinado; // Ya está sin HTML
+        $record->nota = round($nota_final, 2);
+        $record->rubric_grade = is_numeric($rubric_grade) ? round($rubric_grade, 2) : $rubric_grade;
+        $record->feedback = $feedback_combinado;
         $record->files = json_encode($archivos_subidos);
         $record->timecreated = time();
         $record->timemodified = time();

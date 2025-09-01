@@ -28,4 +28,11 @@ $string['date'] = 'Fecha';
 $string['grade'] = 'Nota';
 $string['strftimedatetime'] = '%%d/%%m/%%Y %%H:%%M';
 $string['strftimedateshort'] = '%%d/%%m/%%Y';
+$string['rubric_settings'] = 'Configuración de Rúbrica';
+$string['rubric_type'] = 'Tipo de Rúbrica';
+$string['numeric_grade'] = 'Calificación Numérica';
+$string['apto_noapto'] = 'Apto/No Apto';
+$string['max_nbgrader_grade'] = 'Nota máxima de NBGrader';
+$string['apto_threshold'] = 'Umbral para Apto';
+$string['mejora_threshold'] = 'Umbral para Necesita Mejorar';
 ?>
