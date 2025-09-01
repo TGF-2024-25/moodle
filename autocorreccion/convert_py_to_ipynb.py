@@ -4,73 +4,54 @@ import ast
 import re
 from pathlib import Path
 
-def extract_functions_with_tests(code_content):
-    """
-    Extrae funciones y sus tests asociados del código Python
-    """
-    functions = []
-    tree = ast.parse(code_content)
-    
-    # Encontrar todas las funciones
-    function_nodes = [node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
-    
-    for func_node in function_nodes:
-        func_name = func_node.name
-        func_code = ast.get_source_segment(code_content, func_node)
-        
-        # Buscar tests (asserts) para esta función
-        tests = []
-        lines = code_content.split('\n')
-        
-        # Buscar asserts que mencionen esta función
-        for line in lines:
-            if 'assert ' in line and func_name in line:
-                tests.append(line.strip())
-        
-        functions.append({
-            'name': func_name,
-            'code': func_code,
-            'tests': tests,
-            'line': func_node.lineno
-        })
-    
-    return functions
-
-def create_nbgrader_cell(code_content, cell_id, points=5, grade=True, locked=False):
-    """Crea una celda con metadatos de nbgrader"""
-    cell = nbformat.v4.new_code_cell(code_content)
-    cell.metadata = {
-        "nbgrader": {
-            "grade": grade,
-            "grade_id": cell_id,
-            "points": points,
-            "locked": locked,
-            "solution": True,
-            "task": False
-        }
-    }
-    return cell
-
 def convert_py_to_ipynb(py_file, ipynb_file):
-    """Convierte archivo Python a Jupyter Notebook básico"""
+    """Convierte archivo Python a Jupyter Notebook mejorado para evaluación"""
     
     # Leer el archivo Python
     with open(py_file, 'r', encoding='utf-8') as f:
         code_content = f.read()
     
-    # Crear nuevo notebook con una sola celda
+    # Crear nuevo notebook
     nb = nbformat.v4.new_notebook()
     nb.metadata = {
         "kernelspec": {
             "display_name": "Python 3",
             "language": "python",
             "name": "python3"
+        },
+        "language_info": {
+            "name": "python",
+            "version": "3.8.10"
         }
     }
     
-    # Crear una sola celda con todo el código
-    cell = nbformat.v4.new_code_cell(code_content)
-    nb.cells.append(cell)
+    # Estrategia mejorada: mantener asserts y código relacionado juntos
+    lines = code_content.split('\n')
+    current_cell = []
+    cells = []
+    
+    for i, line in enumerate(lines):
+        line_stripped = line.strip()
+        
+        # Detectar funciones y mantener asserts con su función relacionada
+        if (line_stripped.startswith('def ') or 
+            line_stripped.startswith('class ') or
+            (line_stripped.startswith('assert ') and i > 0 and not lines[i-1].strip().startswith('assert'))):
+            
+            if current_cell:
+                cells.append('\n'.join(current_cell))
+                current_cell = []
+        
+        current_cell.append(line)
+    
+    if current_cell:
+        cells.append('\n'.join(current_cell))
+    
+    # Crear celdas del notebook, asegurando que asserts estén con su código relacionado
+    for cell_content in cells:
+        if cell_content.strip():  # No agregar celdas vacías
+            cell = nbformat.v4.new_code_cell(cell_content)
+            nb.cells.append(cell)
     
     # Guardar el notebook
     with open(ipynb_file, 'w', encoding='utf-8') as f:
