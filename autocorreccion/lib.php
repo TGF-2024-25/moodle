@@ -77,6 +77,7 @@ function autocorreccion_get_coursemodule_info($coursemodule) {
 function autocorreccion_get_extra_capabilities() {
     return [
         'moodle/course:view',
+        'moodle/course:viewhiddenactivities',
         'mod/autocorreccion:view'
     ];
 }

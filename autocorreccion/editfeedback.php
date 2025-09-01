@@ -15,7 +15,6 @@ $PAGE->set_url('/mod/autocorreccion/editfeedback.php', ['id' => $submissionid, '
 $PAGE->set_title('Editar feedback');
 $PAGE->set_heading('Editar retroalimentación');
 
-// Incluye el formulario correctamente
 require_once($CFG->dirroot.'/mod/autocorreccion/classes/form/feedback_form.php');
 $mform = new mod_autocorreccion_feedback_form(null, [
     'submission' => $submission,
@@ -35,7 +34,7 @@ if ($mform->is_cancelled()) {
     
     $DB->update_record('autocorreccion_envios', $submission);
     
-    // Actualizar el libro de calificaciones si es necesario
+    // Actualizar el libro de calificaciones
     $graderecord = [
         'userid' => $submission->userid,
         'feedback' => $submission->teacher_feedback,
