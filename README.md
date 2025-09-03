@@ -13,7 +13,7 @@ Características Principales:
   - Integración con el libro de calificaciones de Moodle
 
 Instalación:
-  - bash git clone https://github.com/TGF-2024-25/moodle.git
+  - git clone https://github.com/TGF-2024-25/moodle.git
   - cd moodle
   - vagrant up
   
