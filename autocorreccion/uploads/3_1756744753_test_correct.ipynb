@@ -1,1 +1,0 @@
-print("Hola, mundo. El código es correcto.")
