@@ -5,17 +5,17 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 8888, host: 8888
 
   # Sincronizar carpeta local con la VM
-  config.vm.synced_folder "C:/Users/kikeebp/Desktop/Universidad/FIN/TFG/VSCodeTFG", "/var/www/html/moodle"
+  config.vm.synced_folder "./moodle", "/var/www/html/moodle"
 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = "4096" # Aumentamos memoria a 4GB para mejor rendimiento
     vb.cpus = 2
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
-
   end
 
   config.vm.provision "shell", inline: <<-SHELL
+    # Actualizar sistema
     sudo apt update && sudo apt upgrade -y
 
     # Instalar Apache y MySQL
@@ -49,11 +49,20 @@ Vagrant.configure("2") do |config|
     sudo systemctl restart mysql
 
     # Descargar Moodle 4.1
-    # cd /var/www/html
-    # sudo rm -rf moodle
-    # sudo git clone -b MOODLE_401_STABLE https://github.com/moodle/moodle.git
-    # sudo chown -R www-data:www-data moodle
-    # sudo chmod -R 755 moodle
+    cd /var/www/html
+    sudo rm -rf moodle
+    sudo git clone -b MOODLE_401_STABLE https://github.com/moodle/moodle.git
+    sudo chown -R www-data:www-data moodle
+    sudo chmod -R 755 moodle
+
+    # Instalar Python y NBGrader
+    sudo apt install -y python3-pip python3-venv
+    sudo -H pip3 install nbgrader jupyter
+
+    # Configurar NBGrader
+    sudo -H jupyter nbextension install --sys-prefix --py nbgrader --overwrite
+    sudo -H jupyter nbextension enable --sys-prefix --py nbgrader
+    sudo -H jupyter serverextension enable --sys-prefix --py nbgrader
 
     # Crear VirtualHost para Moodle
     sudo tee /etc/apache2/sites-available/moodle.conf <<EOF
@@ -74,7 +83,11 @@ Vagrant.configure("2") do |config|
 EOF
 
     sudo a2ensite moodle.conf
+    sudo a2dissite 000-default.conf
     sudo systemctl reload apache2
+
+    # Agregar entrada al archivo hosts
+    echo "127.0.0.1 moodle.local" | sudo tee -a /etc/hosts
 
   SHELL
 end
