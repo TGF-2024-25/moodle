@@ -49,11 +49,11 @@ Vagrant.configure("2") do |config|
     sudo systemctl restart mysql
 
     # Descargar Moodle 4.1
-    cd /var/www/html
-    sudo rm -rf moodle
-    sudo git clone -b MOODLE_401_STABLE https://github.com/moodle/moodle.git
-    sudo chown -R www-data:www-data moodle
-    sudo chmod -R 755 moodle
+    # cd /var/www/html
+    # sudo rm -rf moodle
+    # sudo git clone -b MOODLE_401_STABLE https://github.com/moodle/moodle.git
+    # sudo chown -R www-data:www-data moodle
+    # sudo chmod -R 755 moodle
 
     # Instalar Python y NBGrader
     sudo apt install -y python3-pip python3-venv
@@ -90,4 +90,5 @@ EOF
     echo "127.0.0.1 moodle.local" | sudo tee -a /etc/hosts
 
   SHELL
+
 end
