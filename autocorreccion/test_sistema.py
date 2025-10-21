@@ -19,7 +19,7 @@ class TestSistemaAutocorreccion(unittest.TestCase):
     def setUp(self):
         """Configuración inicial para las pruebas"""
         self.archivos_necesarios = ['convert_py_to_ipynb.py', 'evaluate_nbgrader.py']
-        self.nbgrader_path = "/home/vagrant/mycourse"
+        self.nbgrader_path = "/opt/nbgrader_course"
         self.test_files_dir = tempfile.mkdtemp()
         
         # Crear directorios de prueba para nbgrader si no existen

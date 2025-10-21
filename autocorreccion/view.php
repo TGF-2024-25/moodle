@@ -1,5 +1,6 @@
 <?php
 require_once('../../config.php');
+require_once(__DIR__ . '/lib.php');
 require_login();
 
 $id = required_param('id', PARAM_INT);

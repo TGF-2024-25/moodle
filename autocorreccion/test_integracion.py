@@ -15,7 +15,7 @@ import json
 
 # Configuración
 TEST_DIR = tempfile.mkdtemp()
-PYTHON_EXEC = "/home/vagrant/nbgrader_env/bin/python"
+PYTHON_EXEC = "/opt/nbgrader_env/bin/python"
 MOODLE_DIR = "/var/www/html/moodle/mod/autocorreccion"
 
 def test_integracion_directa():

@@ -19,7 +19,7 @@ echo $OUTPUT->header();
 
 // Configuración de rutas
 $upload_dir = __DIR__ . "/uploads/";
-$nbgrader_dir = "/home/vagrant/mycourse";
+$nbgrader_dir = "/opt/nbgrader_course";
 $temp_dir = sys_get_temp_dir() . '/autocorreccion_' . $USER->id;
 
 // Crear directorios si no existen
@@ -47,7 +47,7 @@ function convertir_py_a_ipynb($archivo_py) {
     }
     
     // Usar el script de conversión Python
-    $command = "/home/vagrant/nbgrader_env/bin/python " . 
+    $command = "/opt/nbgrader_env/bin/python " . 
                $script_path . " " .
                escapeshellarg($archivo_py) . " " .
                escapeshellarg($archivo_ipynb) . " 2>&1";
@@ -71,30 +71,38 @@ function convertir_py_a_ipynb($archivo_py) {
 function procesar_archivo($archivo, $es_python = false) {
     global $USER, $nbgrader_dir, $temp_dir;
     
-    $nombre_archivo = $USER->id . '_' . time() . '_' . basename($archivo);
-    $destino_final = $nbgrader_dir . '/submitted/' . $USER->username . '/ps1/' . $nombre_archivo;
-    
-    // Crear directorio de destino si no existe
-    $destino_dir = dirname($destino_final);
-    if (!is_dir($destino_dir)) {
-        mkdir($destino_dir, 0777, true);
-    }
-    
-    // Para archivos Python, primero convertimos
+    // Nombre base del archivo
+    $nombre_base = $USER->id . '_' . time() . '_' . basename($archivo);
+
+    // Para archivos Python, convertimos primero a .ipynb
     if ($es_python) {
-        $archivo = convertir_py_a_ipynb($archivo);
-        $nombre_archivo = pathinfo($nombre_archivo, PATHINFO_FILENAME) . '.ipynb';
-        $destino_final = $nbgrader_dir . '/submitted/' . $USER->username . '/ps1/' . $nombre_archivo;
+        $archivo_a_copiar = convertir_py_a_ipynb($archivo);
+        $nombre_final_archivo = pathinfo($nombre_base, PATHINFO_FILENAME) . '.ipynb';
+    } else {
+        $archivo_a_copiar = $archivo;
+        $nombre_final_archivo = $nombre_base;
     }
-    
+
+    // Calculamos la ruta de destino final
+    $destino_final = $nbgrader_dir . '/submitted/' . $USER->username . '/ps1/' . $nombre_final_archivo;
+
+    // Crear directorio de destino antes de copiar
+    $directorio_destino = dirname($destino_final);
+    if (!is_dir($directorio_destino)) {
+        if (!mkdir($directorio_destino, 0777, true)) {
+            throw new Exception('Error: No se pudo crear el directorio de destino para la corrección.');
+        }
+    }
+
     // Copiar archivo a NBGrader
-    if (!copy($archivo, $destino_final)) {
+    if (!copy($archivo_a_copiar, $destino_final)) {
         throw new Exception("Error al copiar el archivo a NBGrader: " . error_get_last()['message']);
     }
+
     chmod($destino_final, 0666);
     
     // Ejecutar NBGrader
-    $command = "sudo -u vagrant /home/vagrant/nbgrader_env/bin/python " .
+    $command = "/opt/nbgrader_env/bin/python " .
                "/var/www/html/moodle/mod/autocorreccion/evaluate_nbgrader.py " .
                escapeshellarg($destino_final) . " " .
                escapeshellarg($USER->username) . " 2>&1";
@@ -121,7 +129,7 @@ function procesar_archivo($archivo, $es_python = false) {
     return [
         'nota' => (float)$result['nota'],
         'feedback' => $result['retroalimentacion'],
-        'archivo' => $nombre_archivo
+        'archivo' => $nombre_final_archivo
     ];
 }
 
