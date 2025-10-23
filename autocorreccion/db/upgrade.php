@@ -51,10 +51,9 @@ function xmldb_autocorreccion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025071602, 'mod', 'autocorreccion');
     }
 
-    // Nueva actualización para añadir teacher_feedback
     if ($oldversion < 2025072801) {
         $table = new xmldb_table('autocorreccion_envios');
-        $field = new xmldb_field('teacher_feedback', XMLDB_TYPE_TEXT, null, null, null, null, null, 'feedback');
+        $field = new xmldb_field('teacher_feedback', XMLDB_TYPE_TEXT, null, null, null, null, null, 'teacherid');
         
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
@@ -79,6 +78,32 @@ function xmldb_autocorreccion_upgrade($oldversion) {
         }
 
         upgrade_plugin_savepoint(true, 2025090101, 'mod', 'autocorreccion');
+    }
+
+    if ($oldversion < 2025090102) {
+        $table = new xmldb_table('autocorreccion_envios');
+        $field = new xmldb_field('filename', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2025090102, 'mod', 'autocorreccion');
+    }
+
+    // Nueva actualización para asegurar teacher_feedback
+    if ($oldversion < 2025102301) {
+        $table = new xmldb_table('autocorreccion_envios');
+        $field = new xmldb_field('teacher_feedback', XMLDB_TYPE_TEXT, null, null, null, null, null, 'teacherid');
+        
+        // Forzar la creación del campo
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+        
+        $dbman->add_field($table, $field);
+
+        upgrade_plugin_savepoint(true, 2025102301, 'mod', 'autocorreccion');
     }
 
     return true;

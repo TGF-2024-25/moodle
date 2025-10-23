@@ -27,8 +27,15 @@ if ($mform->is_cancelled()) {
         'userid' => $submission->userid
     ]));
 } else if ($data = $mform->get_data()) {
-    // Actualizar el feedback del profesor
-    $submission->teacher_feedback = $data->teacher_feedback['text'] ?? '';
+    // Procesar el feedback del profesor
+    if (is_array($data->teacher_feedback)) {
+        $teacher_feedback_text = $data->teacher_feedback['text'] ?? '';
+    } else {
+        $teacher_feedback_text = (string)$data->teacher_feedback;
+    }
+    
+    // Actualizar el registro
+    $submission->teacher_feedback = $teacher_feedback_text;
     $submission->teacherid = $USER->id;
     $submission->timemodified = time();
     
@@ -37,6 +44,7 @@ if ($mform->is_cancelled()) {
     // Actualizar el libro de calificaciones
     $graderecord = [
         'userid' => $submission->userid,
+        'rawgrade' => $submission->nota,
         'feedback' => $submission->teacher_feedback,
         'feedbackformat' => FORMAT_HTML
     ];
