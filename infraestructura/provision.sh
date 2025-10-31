@@ -23,6 +23,11 @@ sed -i 's/post_max_size = .*/post_max_size = 200M/' $PHP_INI_PATH
 sed -i 's/max_execution_time = .*/max_execution_time = 300/' $PHP_INI_PATH
 sed -i "s/;*max_input_vars = .*/max_input_vars = 5000/" $PHP_INI_PATH
 
+# Instalar dependencias python para la conversión
+echo "Instalando dependencias Python para conversión de archivos..."
+apt-get install -y python3-pip
+pip3 install nbformat nbconvert
+
 # --- 4. Configurar MySQL ---
 echo "Configurando MySQL..."
 
@@ -115,44 +120,28 @@ chown -R www-data:www-data /var/www
 chmod -R 755 /var/www/html/moodle
 chmod -R 777 /var/www/moodledata
 
-# --- 8. Instalar NBGrader en un entorno virtual ---
-echo "Creando entorno virtual para NBGrader en /opt/nbgrader_env..."
+# --- 8. Configurar directorios para NBGrader externo ---
+echo "Configurando directorios para NBGrader externo..."
 
-# Crear directorios con permisos necesarios
-echo "Creando directorios de NBGrader con permisos necesarios..."
-mkdir -p /opt/nbgrader_course/{source,release,submitted}
+# Crear directorios para NBGrader (solo estructura)
+mkdir -p /opt/nbgrader_course/{source,release,submitted,feedback}
 
-# Dar permisos completos después de crear
+# Dar permisos completos
 chown -R www-data:www-data /opt/nbgrader_course
 chmod -R 777 /opt/nbgrader_course
 
-# Crear el entorno virtual
-mkdir -p /opt/nbgrader_env
-python3 -m venv /opt/nbgrader_env
+# Crear directorio temporal para comunicación
+mkdir -p /tmp/nbgrader_comms
+chown -R www-data:www-data /tmp/nbgrader_comms
+chmod -R 777 /tmp/nbgrader_comms
 
-# Instalar dependencias
-/opt/nbgrader_env/bin/pip install nbgrader jupyter
-
-# Configurar extensiones (con manejo de errores)
-echo "Configurando extensiones con NBGrader..."
-/opt/nbgrader_env/bin/jupyter nbextension install --sys-prefix --py nbgrader --overwrite 2>/dev/null || echo "Advertencia: jupyter-nbextension install falló"
-/opt/nbgrader_env/bin/jupyter nbextension enable --sys-prefix --py nbgrader 2>/dev/null || echo "Advertencia: jupyter-nbextension enable falló"
-/opt/nbgrader_env/bin/jupyter serverextension enable --sys-prefix --py nbgrader 2>/dev/null || echo "Advertencia: jupyter-serverextension enable falló"
-
-# Verificar instalación
-echo "Verificando instalación de NBGrader..."
-/opt/nbgrader_env/bin/jupyter --version
+echo "Directorio NBGrader configurado en: /opt/nbgrader_course"
+echo "NOTA: NBGrader debe instalarse en el HOST, no en la máquina virtual"
 
 # --- 9. Permisos finales y configuración crítica ---
 echo "Aplicando permisos críticos finales..."
 
-# Asegurar permisos del entorno virtual
-chown -R www-data:www-data /opt/nbgrader_env
-chmod -R 755 /opt/nbgrader_env
-
-# Asegurar que los directorios tienen permisos correctos
-echo "Verificación final de permisos..."
-ls -la /opt/ | grep nbgrader
+echo "Verificación final de permisos de NBGrader..."
 
 # Crear un directorio de prueba para verificar que www-data puede escribir
 sudo -u www-data mkdir -p /opt/nbgrader_course/submitted/test_verification
@@ -162,13 +151,14 @@ if [ -f "/opt/nbgrader_course/submitted/test_verification/test.txt" ]; then
     echo "Verificación exitosa: www-data puede escribir en NBGrader"
     sudo rm -rf /opt/nbgrader_course/submitted/test_verification
 else
-    echo "ERROR: www-data NO puede escribir en NBGrader"
+    echo "ERROR: www-data NO puede escribir en NBGrader - ajustando permisos..."
     # Forzar permisos como último recurso
     chmod -R 777 /opt/nbgrader_course
     chown -R www-data:www-data /opt/nbgrader_course
+    echo "✅ Permisos ajustados"
 fi
 
-# Configuración de grupos (mantener esto)
+# Configuración de grupos
 usermod -a -G www-data vagrant
 usermod -a -G vagrant www-data
 
@@ -183,7 +173,8 @@ systemctl restart apache2
 systemctl restart mysql
 
 # Ejecutar actualización de Moodle
-sudo -u www-data php /var/www/html/moodle/admin/cli/upgrade.php --non-interactive
+echo "Moodle descargado correctamente"
+echo "NOTA: Debes completar la instalación de Moodle desde el navegador"
 
 echo "¡Todo listo! Vagrant se ha completado correctamente"
 echo "Moodle disponible en http://192.168.56.10/ y http://localhost:8080/"

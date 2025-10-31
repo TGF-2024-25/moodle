@@ -27,3 +27,26 @@ Requisitos:
   - VirtualBox: 7.0.12+
 
 Desarrollado como parte de un Trabajo de Fin de Grado en Ingeniería del Software
+
+
+---------------------------------------------------
+---------------------------------------------------
+
+
+# Sistema Auto-Corrección Moodle
+
+## 🚀 Uso Rápido
+
+### Windows:
+- Doble clic en `start_system.bat`
+
+### Linux/Mac:
+- Ejecutar `./start_system.sh` en terminal
+
+## 📍 URLs
+- Moodle: http://localhost:8080
+- API: http://localhost:5000
+
+## ⏹️ Detener
+- Ctrl+C en la terminal
+- `vagrant halt` si es necesario

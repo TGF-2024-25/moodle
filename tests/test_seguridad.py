@@ -5,6 +5,8 @@ Pruebas específicas de seguridad para el sistema de autocorrección
 
 import os
 import tempfile
+import sys
+sys.path.append('../autocorreccion')
 from evaluate_nbgrader import evaluar_notebook
 import nbformat
 

@@ -12,6 +12,8 @@
                 <FIELD NAME="rubric_type" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" COMMENT="0=numérica,1=apto/no apto"/>
                 <FIELD NAME="rubric_config" TYPE="text" NOTNULL="false" COMMENT="Configuración JSON de la rúbrica"/>
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="reference_notebook" TYPE="text" NOTNULL="false" COMMENT="Archivo notebook de referencia"/>
+                <FIELD NAME="assignment_name" TYPE="char" LENGTH="100" NOTNULL="false" DEFAULT="ps1" COMMENT="Nombre de la tarea en NBGrader"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

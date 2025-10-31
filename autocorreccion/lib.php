@@ -12,19 +12,64 @@ function autocorreccion_supports($feature) {
         default: return null;
     }
 }
-
-function autocorreccion_add_instance($moduleinstance, $mform = null) {
-    global $DB;
-    $moduleinstance->timecreated = time();
-    $moduleinstance->timemodified = time();
-    return $DB->insert_record('autocorreccion', $moduleinstance);
+function autocorreccion_add_instance($autocorreccion, $mform = null) {
+    global $DB, $CFG;
+    
+    $autocorreccion->timemodified = time();
+    
+    // Insertar en la base de datos
+    $autocorreccion->id = $DB->insert_record('autocorreccion', $autocorreccion);
+    
+    // Guardar archivo de referencia si existe
+    if ($autocorreccion->id && isset($autocorreccion->reference_notebook)) {
+        $context = context_module::instance($autocorreccion->coursemodule);
+        file_save_draft_area_files($autocorreccion->reference_notebook, $context->id, 
+            'mod_autocorreccion', 'reference_notebook', $autocorreccion->id, 
+            array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1));
+    }
+    
+    return $autocorreccion->id;
 }
 
-function autocorreccion_update_instance($moduleinstance, $mform = null) {
+function autocorreccion_update_instance($autocorreccion, $mform = null) {
+    global $DB, $CFG;
+    
+    $autocorreccion->timemodified = time();
+    $autocorreccion->id = $autocorreccion->instance;
+    
+    // Actualizar en la base de datos
+    $result = $DB->update_record('autocorreccion', $autocorreccion);
+    
+    // Guardar archivo de referencia si existe
+    if ($result && isset($autocorreccion->reference_notebook)) {
+        $context = context_module::instance($autocorreccion->coursemodule);
+        file_save_draft_area_files($autocorreccion->reference_notebook, $context->id, 
+            'mod_autocorreccion', 'reference_notebook', $autocorreccion->id, 
+            array('subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1));
+    }
+    
+    return $result;
+}
+
+function autocorreccion_delete_instance($id) {
     global $DB;
-    $moduleinstance->timemodified = time();
-    $moduleinstance->id = $moduleinstance->instance;
-    return $DB->update_record('autocorreccion', $moduleinstance);
+    
+    if (!$autocorreccion = $DB->get_record('autocorreccion', array('id' => $id))) {
+        return false;
+    }
+    
+    // Eliminar archivos asociados
+    $fs = get_file_storage();
+    $context = context_module::instance($autocorreccion->coursemodule);
+    $fs->delete_area_files($context->id, 'mod_autocorreccion', 'reference_notebook');
+    
+    // Eliminar envíos
+    $DB->delete_records('autocorreccion_envios', array('autocorreccionid' => $id));
+    
+    // Eliminar actividad principal
+    $DB->delete_records('autocorreccion', array('id' => $id));
+    
+    return true;
 }
 
 // Verifica si el usuario es profesor/gestor
@@ -44,16 +89,6 @@ function autocorreccion_can_view_submissions($context) {
 // Verifica permisos para enviar archivos
 function autocorreccion_can_submit($context) {
     return has_capability('mod/autocorreccion:submit', $context);
-}
-
-function autocorreccion_delete_instance($id) {
-    global $DB;
-
-    // Elimina todos los envíos relacionados con esta instancia
-    $DB->delete_records('autocorreccion_envios', ['autocorreccionid' => $id]);
-
-    // Elimina la instancia principal
-    return $DB->delete_records('autocorreccion', ['id' => $id]);
 }
 
 function autocorreccion_grade_items($autocorreccion) {
@@ -83,7 +118,7 @@ function autocorreccion_get_extra_capabilities() {
 }
 
 function autocorreccion_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
-    global $DB;
+    global $DB, $USER;
     
     if ($context->contextlevel != CONTEXT_MODULE) {
         return false;
@@ -91,40 +126,64 @@ function autocorreccion_pluginfile($course, $cm, $context, $filearea, $args, $fo
 
     require_login($course, true, $cm);
 
-    if ($filearea !== 'submission') {
-        return false;
-    }
-
-    $itemid = array_shift($args);
-    $filename = array_pop($args);
-    
-    if (!$submission = $DB->get_record('autocorreccion_envios', ['id' => $itemid])) {
-        return false;
-    }
-
-    $fs = get_file_storage();
-    $file = $fs->get_file($context->id, 'mod_autocorreccion', $filearea, $itemid, '/', $filename);
-    
-    if (!$file) {
-        // Si el archivo no está en el sistema de archivos, intentar desde uploads/
-        $upload_dir = __DIR__ . "/uploads/";
-        $filepath = $upload_dir . $filename;
+    if ($filearea === 'reference_notebook') {
+        // Para notebooks de referencia - acceso simple para usuarios del curso
+        $itemid = array_shift($args);
+        $filename = array_pop($args);
         
-        if (file_exists($filepath)) {
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="'.basename($filepath).'"');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($filepath));
-            readfile($filepath);
-            exit;
+        $fs = get_file_storage();
+        $file = $fs->get_file($context->id, 'mod_autocorreccion', $filearea, $itemid, '/', $filename);
+        
+        if ($file) {
+            send_stored_file($file, 0, 0, true, $options);
+            return true;
         }
         return false;
+        
+    } elseif ($filearea === 'submission') {
+        // Para entregas de estudiantes
+        $itemid = array_shift($args);
+        $filename = array_pop($args);
+        
+        if (!$submission = $DB->get_record('autocorreccion_envios', ['id' => $itemid])) {
+            return false;
+        }
+
+        // Verificar permisos
+        $can_view = ($submission->userid == $USER->id) || 
+                   has_capability('mod/autocorreccion:viewallsubmissions', $context);
+        
+        if (!$can_view) {
+            return false;
+        }
+
+        $fs = get_file_storage();
+        $file = $fs->get_file($context->id, 'mod_autocorreccion', $filearea, $itemid, '/', $filename);
+        
+        if (!$file) {
+            // Fallback a directorio uploads/
+            $upload_dir = __DIR__ . "/uploads/";
+            $filepath = $upload_dir . $filename;
+            
+            if (file_exists($filepath)) {
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="'.basename($filepath).'"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($filepath));
+                readfile($filepath);
+                exit;
+            }
+            return false;
+        }
+
+        send_stored_file($file, 0, 0, $forcedownload, $options);
+        return true;
     }
 
-    send_stored_file($file, 0, 0, $forcedownload, $options);
+    return false;
 }
 
 function autocorreccion_calculate_rubric_grade($nbgrader_grade, $autocorreccion) {
@@ -189,4 +248,32 @@ function autocorreccion_get_rubric_class($rubric_grade, $autocorreccion = null) 
             return 'rubric-noapto';
         }
     }
+}
+
+function autocorreccion_process_reference_notebook($autocorreccion, $context) {
+    // Procesar el notebook de referencia y prepararlo para NBGrader
+    $fs = get_file_storage();
+    $files = $fs->get_area_files($context->id, 'mod_autocorreccion', 'reference_notebook', 0);
+    
+    foreach ($files as $file) {
+        if ($file->get_filename() != '.') {
+            // Copiar a directorio de source de NBGrader
+            $source_path = '/opt/nbgrader_course/source/' . $autocorreccion->assignment_name . '/' . $file->get_filename();
+            $file->copy_content_to($source_path);
+            
+            // Generar assignment en NBGrader
+            $command = "cd /opt/nbgrader_course && " .
+                       "/opt/nbgrader_env/bin/nbgrader generate_assignment " . 
+                       escapeshellarg($autocorreccion->assignment_name) . " --force 2>&1";
+            exec($command, $output, $return_code);
+            
+            if ($return_code === 0) {
+                return true;
+            } else {
+                error_log("Error generando assignment: " . implode("\n", $output));
+                return false;
+            }
+        }
+    }
+    return false;
 }

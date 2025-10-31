@@ -35,4 +35,9 @@ $string['apto_noapto'] = 'Apto/No Apto';
 $string['max_nbgrader_grade'] = 'Nota máxima de NBGrader';
 $string['apto_threshold'] = 'Umbral para Apto';
 $string['mejora_threshold'] = 'Umbral para Necesita Mejorar';
+$string['notebooksection'] = 'Notebook de referencia';
+$string['referencenotebook'] = 'Notebook de referencia para los estudiantes';
+$string['assignmentname'] = 'Nombre de la tarea en NBGrader';
+$string['assignmentname_help'] = 'Este nombre debe coincidir con el nombre de la tarea en NBGrader (ej: ps1, assignment1)';
+$string['downloadreference'] = 'Descargar notebook de referencia';
 ?>

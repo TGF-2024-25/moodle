@@ -1,1 +1,39 @@
+# Vagrant
 .vagrant/
+infraestructura/.vagrant/
+
+# Entorno virtual de Python
+nbgrader_venv/
+
+# Archivos de caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+autocorreccion/__pycache__/
+
+# Carpetas de Moodle (runtime)
+autocorreccion/uploads/
+autocorreccion/gradebook.db
+
+# Archivos generados por tests o nbgrader
+nbgrader_course/
+
+# Logs y temporales
+*.log
+*.tmp
+*.temp
+.cache/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores/IDEs
+.vscode/
+.idea/
+*.swp
+*.swo

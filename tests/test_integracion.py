@@ -16,7 +16,7 @@ import json
 # Configuración
 TEST_DIR = tempfile.mkdtemp()
 PYTHON_EXEC = "/opt/nbgrader_env/bin/python"
-MOODLE_DIR = "/var/www/html/moodle/mod/autocorreccion"
+MOODLE_DIR = "../autocorreccion"
 
 def test_integracion_directa():
     """Prueba de integración creando notebook directamente"""

@@ -16,8 +16,9 @@ Vagrant.configure("2") do |config|
     vb.memory = "4096" # Aumentamos memoria a 4GB para mejorar rendimiento
     vb.cpus = 2
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    vb.name = "moodle-autocorreccion-tfg"
   end
 
   # Ejecutamos el script de instalación externo
-  config.vm.provision "shell", path: "provision.sh"
+  config.vm.provision "shell", path: "infraestructura/provision.sh"
 end

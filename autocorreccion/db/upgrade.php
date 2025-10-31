@@ -106,5 +106,24 @@ function xmldb_autocorreccion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025102301, 'mod', 'autocorreccion');
     }
 
+    // NUEVO: Campos para notebook de referencia (usa solo esta versión)
+    if ($oldversion < 2025102801) {
+        $table = new xmldb_table('autocorreccion');
+        
+        // Campo para el notebook de referencia
+        $field1 = new xmldb_field('reference_notebook', XMLDB_TYPE_TEXT, null, null, null, null, null, 'introformat');
+        if (!$dbman->field_exists($table, $field1)) {
+            $dbman->add_field($table, $field1);
+        }
+        
+        // Campo para el nombre de la tarea en NBGrader
+        $field2 = new xmldb_field('assignment_name', XMLDB_TYPE_CHAR, '100', null, null, null, 'ps1', 'reference_notebook');
+        if (!$dbman->field_exists($table, $field2)) {
+            $dbman->add_field($table, $field2);
+        }
+
+        upgrade_plugin_savepoint(true, 2025102801, 'mod', 'autocorreccion');
+    }
+
     return true;
 }

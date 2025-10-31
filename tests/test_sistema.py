@@ -10,7 +10,7 @@ import nbformat
 import re
 
 # Añadir ruta para importar módulos
-sys.path.append('/var/www/html/moodle/mod/autocorreccion')
+sys.path.append('../autocorreccion')
 
 print("=== SISTEMA DE PRUEBAS AUTOCORRECCIÓN COMPLETO ===\n")
 
@@ -548,8 +548,7 @@ class TestPHPIntegration(unittest.TestCase):
         
         # Buscar install.xml en diferentes ubicaciones posibles
         posibles_rutas = [
-            'install.xml',
-            'db/install.xml',
+            '../autocorreccion/db/install.xml',
             '/var/www/html/moodle/mod/autocorreccion/db/install.xml'
         ]
         

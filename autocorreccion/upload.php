@@ -19,7 +19,6 @@ echo $OUTPUT->header();
 
 // Configuración de rutas
 $upload_dir = __DIR__ . "/uploads/";
-$nbgrader_dir = "/opt/nbgrader_course";
 $temp_dir = sys_get_temp_dir() . '/autocorreccion_' . $USER->id;
 
 // Crear directorios si no existen
@@ -47,7 +46,7 @@ function convertir_py_a_ipynb($archivo_py) {
     }
     
     // Usar el script de conversión Python
-    $command = "/opt/nbgrader_env/bin/python " . 
+    $command = "python3 " . 
                $script_path . " " .
                escapeshellarg($archivo_py) . " " .
                escapeshellarg($archivo_ipynb) . " 2>&1";
@@ -68,62 +67,26 @@ function convertir_py_a_ipynb($archivo_py) {
     return $archivo_ipynb;
 }
 
-function procesar_archivo($archivo, $es_python = false) {
-    global $USER, $nbgrader_dir, $temp_dir;
+function procesar_archivo($archivo, $es_python = false, $assignment_name = 'ps1') {
+    global $USER, $temp_dir;
     
     // Nombre base del archivo
     $nombre_base = $USER->id . '_' . time() . '_' . basename($archivo);
 
     // Para archivos Python, convertimos primero a .ipynb
     if ($es_python) {
-        $archivo_a_copiar = convertir_py_a_ipynb($archivo);
+        $archivo_a_evaluar = convertir_py_a_ipynb($archivo);
         $nombre_final_archivo = pathinfo($nombre_base, PATHINFO_FILENAME) . '.ipynb';
     } else {
-        $archivo_a_copiar = $archivo;
+        $archivo_a_evaluar = $archivo;
         $nombre_final_archivo = $nombre_base;
     }
 
-    // Calculamos la ruta de destino final
-    $destino_final = $nbgrader_dir . '/submitted/' . $USER->username . '/ps1/' . $nombre_final_archivo;
-
-    // Crear directorio de destino antes de copiar
-    $directorio_destino = dirname($destino_final);
-    if (!is_dir($directorio_destino)) {
-        if (!mkdir($directorio_destino, 0777, true)) {
-            throw new Exception('Error: No se pudo crear el directorio de destino para la corrección.');
-        }
-    }
-
-    // Copiar archivo a NBGrader
-    if (!copy($archivo_a_copiar, $destino_final)) {
-        throw new Exception("Error al copiar el archivo a NBGrader: " . error_get_last()['message']);
-    }
-
-    chmod($destino_final, 0666);
+    // Usar API REST para evaluación externa
+    $result = ejecutar_nbgrader_api($archivo_a_evaluar, $USER->username, $assignment_name);
     
-    // Ejecutar NBGrader
-    $command = "/opt/nbgrader_env/bin/python " .
-               "/var/www/html/moodle/mod/autocorreccion/evaluate_nbgrader.py " .
-               escapeshellarg($destino_final) . " " .
-               escapeshellarg($USER->username) . " 2>&1";
-    
-    $output = shell_exec($command);
-    // Limpiar posibles mensajes de debug antes del JSON
-    $json_start = strpos($output, '{');
-    if ($json_start !== false) {
-        $output = substr($output, $json_start); // Tomar solo desde el inicio del JSON
-    }
-
-    $result = json_decode($output, true);
-
-    if (!$result) {
-        // Intentar limpiar más el output
-        $output_limpio = preg_replace('/^[^{]*/', '', $output); // Eliminar todo antes del {
-        $result = json_decode($output_limpio, true);
-        
-        if (!$result) {
-            throw new Exception("La evaluación devolvió un formato inválido. Output: " . substr($output, 0, 200));
-        }
+    if (!$result || $result['estado'] === 'error') {
+        throw new Exception("Error en evaluación NBGrader: " . ($result['error'] ?? 'Error desconocido'));
     }
     
     return [
@@ -131,6 +94,92 @@ function procesar_archivo($archivo, $es_python = false) {
         'feedback' => $result['retroalimentacion'],
         'archivo' => $nombre_final_archivo
     ];
+}
+
+function ejecutar_nbgrader_api($notebook_path, $usuario, $assignment_name = 'ps1') {
+    // Detectar automáticamente la IP del host
+    $host_ip = detectar_ip_host();
+    $api_url = "http://{$host_ip}:5000/grade";
+    
+    error_log("Conectando a API NBGrader en: $api_url");
+    
+    // Verificar que el archivo existe
+    if (!file_exists($notebook_path)) {
+        return [
+            'estado' => 'error',
+            'error' => "El archivo $notebook_path no existe"
+        ];
+    }
+    
+    // Preparar datos para la API usando CURLFile
+    $post_data = [
+        'notebook' => new CURLFile($notebook_path),
+        'usuario' => $usuario,
+        'assignment' => $assignment_name
+    ];
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $api_url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'User-Agent: Moodle-AutoCorreccion/1.0'
+    ]);
+    
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+    
+    error_log("API NBGrader - HTTP Code: $http_code, Response: " . substr($response, 0, 200));
+    
+    if ($http_code !== 200) {
+        return [
+            'estado' => 'error',
+            'error' => "Error HTTP $http_code en API NBGrader: " . ($error ?: $response)
+        ];
+    }
+    
+    $result = json_decode($response, true);
+    
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return [
+            'estado' => 'error',
+            'error' => "Respuesta JSON inválida de la API: " . json_last_error_msg()
+        ];
+    }
+    
+    return $result;
+}
+
+function detectar_ip_host() {
+    // Intentar diferentes métodos para detectar la IP del host
+    $possible_ips = ['192.168.56.1', '10.0.2.2', 'localhost'];
+    
+    foreach ($possible_ips as $ip) {
+        $test_url = "http://{$ip}:5000/health";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $test_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        
+        if (curl_exec($ch) !== false) {
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if ($http_code == 200) {
+                error_log("IP detectada para API: $ip");
+                return $ip;
+            }
+        }
+        curl_close($ch);
+    }
+    
+    // Si no se detecta, usar la predeterminada
+    error_log("No se pudo detectar IP del host, usando 192.168.56.1 por defecto");
+    return '192.168.56.1';
 }
 
 try {

@@ -31,7 +31,54 @@ $PAGE->add_body_class('mod-autocorreccion-container');
 echo $OUTPUT->header();
 
 // ========== VISTA PARA PROFESOR ==========
-if (autocorreccion_is_teacher($context)) {
+if (autocorreccion_is_teacher($context)) {  
+  
+    // Mostrar notebook de referencia al profesor
+    $autocorreccion = $DB->get_record('autocorreccion', ['id' => $cm->instance]);
+    
+    if ($autocorreccion) {
+        $fs = get_file_storage();
+        
+        $files = $fs->get_area_files(
+            $context->id, 
+            'mod_autocorreccion', 
+            'reference_notebook', 
+            $autocorreccion->id,
+            'itemid, filepath, filename', 
+            false
+        );
+        
+        if (!empty($files)) {
+            foreach ($files as $file) {
+                if ($file->get_filename() != '.') {
+                    $url = moodle_url::make_pluginfile_url(
+                        $file->get_contextid(),
+                        $file->get_component(),
+                        $file->get_filearea(),
+                        $file->get_itemid(),
+                        $file->get_filepath(),
+                        $file->get_filename(),
+                        true
+                    );
+                    
+                    echo html_writer::start_tag('div', ['class' => 'alert alert-info']);
+                    echo html_writer::tag('h4', '📚 Notebook de Referencia');
+                    echo html_writer::tag('p', 'Archivo de referencia para los estudiantes:');
+                    echo html_writer::link($url, $file->get_filename(), [
+                        'class' => 'btn btn-info', 
+                        'target' => '_blank'
+                    ]);
+                    echo html_writer::end_tag('div');
+                    break;
+                }
+            }
+        } else {
+            echo html_writer::start_tag('div', ['class' => 'alert alert-warning']);
+            echo html_writer::tag('p', 'No se ha subido notebook de referencia para esta actividad.');
+            echo html_writer::end_tag('div');
+        }
+    } 
+    
     echo html_writer::tag('h2', 'Listado de estudiantes');
     
     $sql_estudiantes = "SELECT DISTINCT u.id, u.firstname, u.lastname 
@@ -175,6 +222,57 @@ if (autocorreccion_is_teacher($context)) {
 } 
 // ========== VISTA PARA ESTUDIANTE ==========
 else {
+    // MOSTRAR NOTEBOOK DE REFERENCIA PARA ESTUDIANTES
+    echo html_writer::start_tag('div', ['class' => 'reference-notebook-container']);
+
+    $autocorreccion = $DB->get_record('autocorreccion', ['id' => $cm->instance]);
+
+    if ($autocorreccion) {
+        $fs = get_file_storage();
+        
+        $files = $fs->get_area_files(
+            $context->id, 
+            'mod_autocorreccion', 
+            'reference_notebook', 
+            $autocorreccion->id,
+            'itemid, filepath, filename', 
+            false
+        );
+        
+        if (!empty($files)) {
+            foreach ($files as $file) {
+                if ($file->get_filename() != '.') {
+                    $url = moodle_url::make_pluginfile_url(
+                        $file->get_contextid(),
+                        $file->get_component(),
+                        $file->get_filearea(),
+                        $file->get_itemid(),
+                        $file->get_filepath(),
+                        $file->get_filename(),
+                        true
+                    );
+                    
+                    echo html_writer::start_tag('div', ['class' => 'alert alert-info']);
+                    echo html_writer::tag('h4', '📚 Notebook de Referencia');
+                    echo html_writer::tag('p', 'Descarga el notebook de referencia y trabaja sobre él:');
+                    echo html_writer::link($url, $file->get_filename(), [
+                        'class' => 'btn btn-success', 
+                        'target' => '_blank'
+                    ]);
+                    echo html_writer::end_tag('div');
+                    break;
+                }
+            }
+        } else {
+            echo html_writer::start_tag('div', ['class' => 'alert alert-warning']);
+            echo html_writer::tag('p', 'No hay notebook de referencia disponible para esta actividad.');
+            echo html_writer::end_tag('div');
+        }
+    }
+
+    echo html_writer::end_tag('div');
+    echo html_writer::empty_tag('br');
+    
     if (autocorreccion_can_submit($context)) {
         echo html_writer::tag('h2', get_string('fileupload', 'autocorreccion'));
         echo html_writer::start_tag('form', [

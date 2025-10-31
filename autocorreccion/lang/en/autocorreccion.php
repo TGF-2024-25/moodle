@@ -35,4 +35,10 @@ $string['apto_noapto'] = 'Pass/Fail';
 $string['max_nbgrader_grade'] = 'Maximum NBGrader Grade';
 $string['apto_threshold'] = 'Pass Threshold';
 $string['mejora_threshold'] = 'Needs Improvement Threshold';
+$string['notebooksection'] = 'Reference Notebook';
+$string['referencenotebook'] = 'Reference notebook for students';
+$string['assignmentname'] = 'Assignment name in NBGrader';
+$string['assignmentname_help'] = 'This name must match the assignment name in NBGrader (e.g., ps1, assignment1)';
+$string['downloadreference'] = 'Download reference notebook';
+$string['assignmentname_invalid'] = 'Assignment name can only contain letters, numbers and underscores';
 ?>
