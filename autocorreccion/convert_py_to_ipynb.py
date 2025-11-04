@@ -25,7 +25,6 @@ def convert_py_to_ipynb(py_file, ipynb_file):
         }
     }
     
-    # Estrategia mejorada: mantener asserts y código relacionado juntos
     lines = code_content.split('\n')
     current_cell = []
     cells = []
@@ -33,7 +32,6 @@ def convert_py_to_ipynb(py_file, ipynb_file):
     for i, line in enumerate(lines):
         line_stripped = line.strip()
         
-        # Detectar funciones y mantener asserts con su función relacionada
         if (line_stripped.startswith('def ') or 
             line_stripped.startswith('class ') or
             (line_stripped.startswith('assert ') and i > 0 and not lines[i-1].strip().startswith('assert'))):

@@ -95,7 +95,7 @@ print(f"Operación completada en {end-start:.2f} segundos")
     celda = nbformat.v4.new_code_cell(codigo_lento)
     notebook.cells.append(celda)
     
-    # CORREGIDO: usar modo texto explícito aquí también
+    # Usar modo texto explícito aquí también
     with tempfile.NamedTemporaryFile(suffix='.ipynb', mode='w', delete=False, encoding='utf-8') as f:
         nbformat.write(notebook, f)
         notebook_path = f.name

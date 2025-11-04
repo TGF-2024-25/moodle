@@ -36,7 +36,7 @@ fi
 
 echo ""
 echo "=========================================="
-echo "   ✅ SISTEMA INICIADO CORRECTAMENTE"
+echo "     SISTEMA INICIADO CORRECTAMENTE"
 echo "=========================================="
 echo "Moodle:  http://localhost:8080"
 echo "API:     http://localhost:5000"

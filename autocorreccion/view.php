@@ -62,7 +62,7 @@ if (autocorreccion_is_teacher($context)) {
                     );
                     
                     echo html_writer::start_tag('div', ['class' => 'alert alert-info']);
-                    echo html_writer::tag('h4', '📚 Notebook de Referencia');
+                    echo html_writer::tag('h4', 'Notebook de Referencia');
                     echo html_writer::tag('p', 'Archivo de referencia para los estudiantes:');
                     echo html_writer::link($url, $file->get_filename(), [
                         'class' => 'btn btn-info', 
@@ -191,7 +191,7 @@ if (autocorreccion_is_teacher($context)) {
                     'courseid' => $course->id
                 ]);
 
-                // Mostrar ambas notas (NbGrader y Rúbrica)
+                // Mostrar nota
                 $nota_cell = html_writer::tag('div', 'NbGrader: '.($entrega->nota ?? 'N/A'), [
                     'class' => ($entrega->nota >= 5 ? 'nota-alta' : 'nota-baja')
                 ]);
@@ -222,7 +222,7 @@ if (autocorreccion_is_teacher($context)) {
 } 
 // ========== VISTA PARA ESTUDIANTE ==========
 else {
-    // MOSTRAR NOTEBOOK DE REFERENCIA PARA ESTUDIANTES
+    // Mostrar notebook de referencia para estudiantes
     echo html_writer::start_tag('div', ['class' => 'reference-notebook-container']);
 
     $autocorreccion = $DB->get_record('autocorreccion', ['id' => $cm->instance]);
@@ -253,7 +253,7 @@ else {
                     );
                     
                     echo html_writer::start_tag('div', ['class' => 'alert alert-info']);
-                    echo html_writer::tag('h4', '📚 Notebook de Referencia');
+                    echo html_writer::tag('h4', 'Notebook de Referencia');
                     echo html_writer::tag('p', 'Descarga el notebook de referencia y trabaja sobre él:');
                     echo html_writer::link($url, $file->get_filename(), [
                         'class' => 'btn btn-success', 

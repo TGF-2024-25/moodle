@@ -91,7 +91,7 @@ function xmldb_autocorreccion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025090102, 'mod', 'autocorreccion');
     }
 
-    // Nueva actualización para asegurar teacher_feedback
+    // Actualización para asegurar teacher_feedback
     if ($oldversion < 2025102301) {
         $table = new xmldb_table('autocorreccion_envios');
         $field = new xmldb_field('teacher_feedback', XMLDB_TYPE_TEXT, null, null, null, null, null, 'teacherid');
@@ -106,7 +106,7 @@ function xmldb_autocorreccion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025102301, 'mod', 'autocorreccion');
     }
 
-    // NUEVO: Campos para notebook de referencia (usa solo esta versión)
+    // Campos para notebook de referencia
     if ($oldversion < 2025102801) {
         $table = new xmldb_table('autocorreccion');
         

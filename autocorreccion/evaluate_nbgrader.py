@@ -199,7 +199,7 @@ nota_final, puntos_obtenidos, total_puntos = mostrar_resultados_finales()
             "retroalimentacion": f"Error durante la evaluación: {str(e)}"
         }
 
-# === Ejecución principal ===
+# Ejecución principal
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print(json.dumps({"estado": "error", "error": "Se requieren 2 argumentos: notebook y usuario"}))

@@ -9,7 +9,7 @@ def crear_directorio():
     """Crea el directorio si no existe"""
     if not os.path.exists('notebooks_ejemplo'):
         os.makedirs('notebooks_ejemplo')
-        print("✅ Directorio 'notebooks_ejemplo' creado")
+        print("Directorio 'notebooks_ejemplo' creado")
 
 def crear_notebook_profesor():
     """Crea el notebook de referencia para el profesor"""
@@ -183,7 +183,7 @@ def crear_notebook_profesor():
     with open('notebooks_ejemplo/ejercicio_funciones.ipynb', 'w', encoding='utf-8') as f:
         json.dump(notebook, f, indent=2, ensure_ascii=False)
     
-    print("✅ Notebook del profesor creado: ejercicio_funciones.ipynb")
+    print("Notebook del profesor creado: ejercicio_funciones.ipynb")
 
 def crear_archivos_estudiante():
     """Crea los archivos .py para estudiantes"""
@@ -248,7 +248,7 @@ print("¡Todos los tests pasaron! Ejercicio completado correctamente.")
     
     with open('notebooks_ejemplo/estudiante_bueno.py', 'w', encoding='utf-8') as f:
         f.write(contenido_bueno)
-    print("✅ Archivo del estudiante bueno creado: estudiante_bueno.py")
+    print("Archivo del estudiante bueno creado: estudiante_bueno.py")
     
     # Estudiante malo
     contenido_malo = '''# Ejercicio - Funciones Básicas en Python
@@ -304,11 +304,11 @@ print("¡Algunos tests fallaron! Revisa tus funciones.")
     
     with open('notebooks_ejemplo/estudiante_malo.py', 'w', encoding='utf-8') as f:
         f.write(contenido_malo)
-    print("✅ Archivo del estudiante malo creado: estudiante_malo.py")
+    print("Archivo del estudiante malo creado: estudiante_malo.py")
 
 def main():
     """Función principal"""
-    print("🎯 CREADOR DE EJERCICIOS PARA AUTO-CORRECCIÓN")
+    print("CREADOR DE EJERCICIOS PARA AUTO-CORRECCIÓN")
     print("=" * 50)
     
     crear_directorio()
@@ -316,12 +316,12 @@ def main():
     crear_archivos_estudiante()
     
     print("=" * 50)
-    print("🎉 Todos los archivos creados correctamente!")
-    print("\n📁 Archivos creados en la carpeta 'notebooks_ejemplo':")
+    print("Todos los archivos creados correctamente!")
+    print("\nArchivos creados en la carpeta 'notebooks_ejemplo':")
     print("   • ejercicio_funciones.ipynb - Para el profesor")
     print("   • estudiante_bueno.py - Ejercicio bien resuelto (~8/10)")
     print("   • estudiante_malo.py - Ejercicio mal resuelto (~3/10)")
-    print("\n💡 Instrucciones:")
+    print("\nInstrucciones:")
     print("   1. Sube 'ejercicio_funciones.ipynb' como referencia en Moodle")
     print("   2. Los estudiantes pueden subir los archivos .py o .ipynb")
     print("   3. El sistema convertirá automáticamente .py a .ipynb")

@@ -18,7 +18,7 @@ try:
     from evaluate_nbgrader import evaluar_notebook
     EVALUATION_ENGINE_AVAILABLE = True
 except ImportError as e:
-    print(f"⚠️  No se pudo importar evaluate_nbgrader: {e}")
+    print(f"No se pudo importar evaluate_nbgrader: {e}")
     EVALUATION_ENGINE_AVAILABLE = False
 
 app = Flask(__name__)
@@ -244,14 +244,14 @@ def test_evaluation():
         }), 500
 
 if __name__ == '__main__':
-    print("🚀 API de Auto-Corrección - Integración NBGrader Real")
-    print("📍 URL: http://localhost:5000")
-    print("📊 Endpoints disponibles:")
+    print("API de Auto-Corrección - Integración NBGrader Real")
+    print("URL: http://localhost:5000")
+    print("Endpoints disponibles:")
     print("   POST /grade     - Evaluar notebook")
     print("   GET  /health    - Estado del sistema") 
     print("   GET  /test      - Prueba de evaluación")
     print("")
-    print(f"🔧 Motor de evaluación: {'✅ DISPONIBLE' if EVALUATION_ENGINE_AVAILABLE else '❌ NO DISPONIBLE'}")
+    print(f"Motor de evaluación: {'DISPONIBLE' if EVALUATION_ENGINE_AVAILABLE else 'NO DISPONIBLE'}")
     print("=" * 50)
     
     app.run(host='0.0.0.0', port=5000, debug=False)

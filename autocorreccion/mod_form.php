@@ -17,7 +17,7 @@ class mod_autocorreccion_mod_form extends moodleform_mod {
         // Descripción
         $this->standard_intro_elements();
 
-        // --- NUEVO: Notebook de referencia ---
+        // Notebook de referencia
         $mform->addElement('header', 'notebooksection', get_string('notebooksection', 'autocorreccion'));
         
         // Subir notebook de referencia
@@ -39,7 +39,7 @@ class mod_autocorreccion_mod_form extends moodleform_mod {
         $mform->addRule('assignment_name', null, 'required', null, 'client');
         $mform->addHelpButton('assignment_name', 'assignmentname', 'autocorreccion');
 
-        // --- Configuración de rúbrica ---
+        // Configuración de rúbrica
         $mform->addElement('header', 'rubrichdr', get_string('rubric_settings', 'autocorreccion'));
 
         $options = [
