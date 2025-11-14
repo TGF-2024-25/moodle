@@ -247,24 +247,23 @@ try {
         
         // Formatear el feedback correctamente
         $feedback_combinado = "";
-        foreach ($feedbacks as $item) {
-            $feedback_combinado .= "Archivo: " . s($item['filename']) . "\n";
-            
-            // Procesar el feedback para mejor legibilidad
-            $lineas = explode("\n", $item['feedback']);
-            foreach ($lineas as $linea) {
-                if (trim($linea)) {
-                    $feedback_combinado .= $linea . "\n";
-                }
+
+        foreach ($feedbacks as $index => $item) {
+            if ($index > 0) {
+                $feedback_combinado .= "\n\n"; // salto entre archivos
             }
-            $feedback_combinado .= "\n"; // Espacio entre archivos
+
+            $raw_text = "Archivo: " . s($item['filename']) . "\n" . trim($item['feedback']);
+
+            // Aplicar formato visual
+            $feedback_combinado .= autocorreccion_format_feedback($raw_text, true);
         }
 
         // Mostrar resultados
         echo $OUTPUT->notification("Archivos procesados correctamente", 'success');
         echo "<div class='alert alert-success'><strong>Nota promedio:</strong> " . number_format($nota_final, 2) . "</div>";
         echo "<details class='mt-3'><summary class='btn btn-secondary'>Ver feedback detallado</summary>";
-        echo "<div class='p-3 mt-2 bg-light border rounded'>" . nl2br(s($feedback_combinado)) . "</div></details>";
+        echo "<div class='p-3 mt-2 bg-light border rounded'>" . nl2br($feedback_combinado) . "</div></details>";
 
         // Botón volver
         echo '<div class="mt-3">';
@@ -285,9 +284,38 @@ try {
         $record->timemodified = time();
 
         try {
-            $DB->insert_record('autocorreccion_envios', $record);
+            $submission_id = $DB->insert_record('autocorreccion_envios', $record);
             
-            // Actualizar calificación en Moodle
+            // Obtener la actividad
+            $autocorreccion = $DB->get_record('autocorreccion', ['id' => $cm->instance]);
+            
+            // Forzar actualización del gradebook
+            require_once($CFG->libdir . '/gradelib.php');
+            
+            // Obtener la última entrega
+            $latest_submission = $DB->get_record('autocorreccion_envios', ['id' => $submission_id]);
+            
+            // Preparar el feedback combinado para el gradebook
+            $feedback_for_gradebook = '';
+            
+            // Feedback automático de NBGrader
+            if (!empty($latest_submission->feedback)) {
+                $feedback_for_gradebook .= autocorreccion_format_feedback($latest_submission->feedback);
+            }
+            
+            // Feedback del profesor (si existe)
+            if (!empty($latest_submission->teacher_feedback)) {
+                if (!empty($feedback_for_gradebook)) {
+                    $feedback_for_gradebook .= "<hr style='margin: 10px 0;'>";
+                }
+                $feedback_for_gradebook .= html_writer::tag('div', 
+                    html_writer::tag('strong', 'Comentario del profesor:') . 
+                    html_writer::tag('div', format_text($latest_submission->teacher_feedback, FORMAT_HTML)),
+                    ['class' => 'teacher-feedback-section']
+                );
+            }
+            
+            // Actualizar el gradebook con el feedback combinado
             $grade_result = grade_update(
                 'mod/autocorreccion',
                 $course->id,
@@ -297,15 +325,16 @@ try {
                 0,
                 [
                     'userid' => $USER->id,
-                    'rawgrade' => $nota_final,
-                    'feedback' => $feedback_combinado,
-                    'feedbackformat' => FORMAT_PLAIN
+                    'rawgrade' => $latest_submission->nota,
+                    'feedback' => $feedback_for_gradebook,
+                    'feedbackformat' => FORMAT_HTML
                 ]
             );
             
             if ($grade_result !== GRADE_UPDATE_OK) {
-                echo $OUTPUT->notification("La nota se guardó pero hubo un problema al actualizar el libro de calificaciones", 'notifyproblem');
+                error_log("Error actualizando gradebook para usuario $USER->id, actividad {$cm->instance}");
             }
+            
         } catch (Exception $e) {
             echo $OUTPUT->notification("Error al guardar en la base de datos: " . $e->getMessage(), 'error');
         }

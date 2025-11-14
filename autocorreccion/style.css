@@ -1,24 +1,15 @@
 /* Estilos principales del contenedor */
 .mod-autocorreccion-container {
-    max-width: 900px;
+    max-width: 1200px !important;
+    width: 95% !important;
     margin: 0 auto;
     padding: 20px;
     font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
 }
 
-/* Animaciones */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ========== ESTILOS COMUNES ========== */
+/* === ESTILOS COMUNES === */
 /* Estilo para notas */
 .nota-alta {
     color: #2e7d32;
@@ -42,7 +33,7 @@
     text-decoration: underline;
 }
 
-/* ========== ESTILOS PARA RÚBRICAS ========== */
+/* === ESTILOS PARA RÚBRICAS === */
 .rubric-apto {
     color: #28a745;
     font-weight: bold;
@@ -73,13 +64,87 @@
     margin-top: 3px;
 }
 
-/* Estilos para feedback */
+/* === ESTILOS PARA FEEDBACK === */
 .feedback-line {
-    margin: 3px 0;
-    padding-left: 10px;
-    white-space: pre-wrap;
-    font-family: monospace;
-    line-height: 1.4;
+    /* margin: 3px 0; */
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-size: 15px;
+}
+
+/* Archivo en negrita */
+.feedback-archivo {
+    font-weight: bold !important;
+    color: #333 !important;
+    /*
+    margin: 20px 0 5px 0 !important;
+    font-size: 16px !important;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 5px;
+    */
+}
+
+/* Títulos de sección */
+.feedback-section-title {
+    font-weight: bold !important;
+    color: #0066cc !important;
+    margin: 10px 0 5px 0 !important;
+    font-size: 16px !important;
+}
+
+/* Nota final */
+.feedback-final-grade {
+    font-weight: bold !important;
+    color: #2e7d32 !important;
+    margin: 10px 0 5px 0 !important;
+    /* font-size: 16px !important; */
+}
+
+/* Errores */
+.feedback-error {
+    color: #c62828 !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    margin-left: 10px;
+}
+
+/* Estilo para las funciones con guiones */
+.feedback-funcion {
+    margin-left: 10px;
+    position: relative;
+}
+
+/* Para los títulos "Archivo:" y "NOTA FINAL:" */
+.feedback-line-header {
+    font-weight: bold;
+    margin-top: 5px;
+    display: block; /* Asegura que esté en su propia línea */
+}
+
+/* Para "RESULTADOS DETALLADOS" en azul */
+.feedback-header-detalles {
+    color: #0066cc; /* Azul Moodle */
+    font-weight: bold;
+    margin-top: 5px;
+    margin-bottom: 3px;
+    display: block;
+}
+
+/* Para las líneas con guión */
+.feedback-line-detail {
+    padding-left: 15px; /* Indentación para el guión */
+    text-indent: -10px; /* Mueve el guión a la izquierda */
+    display: block;     /* Asegura que cada uno esté en su línea */
+    margin-left: 10px;
+}
+
+/* Separador horizontal para upload.php */
+.feedback-separator {
+    border: 0;
+    /*
+    border-top: 2px solid #e0e7ff;
+    margin: 25px 0; 
+    */
 }
 
 .teacher-feedback {
@@ -108,16 +173,7 @@
     text-decoration: underline;
 }
 
-/* Asegurar que los archivos se muestren en líneas separadas */
-.info-content br,
-.feedback-container br {
-    display: block;
-    content: "";
-    margin: 5px 0;
-    line-height: 0;
-}
-
-/* ========== ESTILOS PARA PROFESOR ========== */
+/* === ESTILOS PARA PROFESOR === */
 .lista-estudiantes {
     list-style-type: disc !important;
     padding-left: 40px !important;
@@ -171,7 +227,7 @@
     color: #0066cc;
 }
 
-/* ========== ESTILOS PARA ESTUDIANTE ========== */
+/* === ESTILOS PARA ESTUDIANTE === */
 /* Estilo para la última entrega destacada */
 .ultima-entrega-destacada {
     background: linear-gradient(135deg, #f5f9ff 0%, #e6f2ff 100%);
@@ -254,10 +310,12 @@
     padding: 15px;
     border-radius: 6px;
     margin-top: 10px;
+    margin-bottom: 10px;
     border: 1px solid #d9e7ff;
     color: #333;
-    line-height: 1.6;
+    /* line-height: 1.6; */
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    font-size: 15px;
 }
 
 /* Feedback del profesor */
@@ -384,6 +442,7 @@
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    font-size: 15px;
 }
 
 .generaltable th {
@@ -395,7 +454,7 @@
 }
 
 .generaltable td {
-    padding: 10px 15px;
+    padding: 12px 15px;
     border-bottom: 1px solid #e0e7ff;
     background: white;
     vertical-align: top;
@@ -426,10 +485,25 @@
     background-color: #5a6268;
 }
 
+/* Para el feedback en upload.php */
+.bg-light {
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    white-space: pre-line;
+    padding: 15px;
+}
+
+.bg-light strong {
+    font-weight: bold;
+    color: #333;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .mod-autocorreccion-container {
         padding: 15px;
+        max-width: 95% !important;
     }
     
     .ultima-entrega-destacada {
@@ -457,5 +531,18 @@
     .info-icon {
         margin-bottom: 5px;
         margin-right: 0;
+    }
+
+    .generaltable {
+        font-size: 14px;
+    }
+    
+    .generaltable td {
+        padding: 8px 10px;
+        word-break: break-word;
+    }
+    
+    .feedback-line {
+        font-size: 14px;
     }
 }

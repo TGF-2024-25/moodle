@@ -31,19 +31,19 @@ def contar_vocales(texto):
 assert suma_lista([1, 2, 3, 4, 5]) == 15  # Este fallará
 assert suma_lista([-1, 0, 1]) == 0  # Este fallará
 assert suma_lista([10, 20, 30]) == 60  # Este fallará
-print("✓ Tests de suma_lista pasados")
+print("OK! Tests de suma_lista pasados")
 
 # Tests para encontrar_maximo
 assert encontrar_maximo([1, 5, 3, 9, 2]) == 9  # Este fallará
 assert encontrar_maximo([-5, -2, -10]) == -2  # Este fallará
 assert encontrar_maximo([100]) == 100  # Este pasará
-print("✓ Tests de encontrar_maximo pasados")
+print("OK! Tests de encontrar_maximo pasados")
 
 # Tests para contar_vocales
 assert contar_vocales("Hola Mundo") == 4  # Este pasará
 assert contar_vocales("Python") == 1  # Este pasará
 assert contar_vocales("AEIOUaeiou") == 10  # Este pasará
 assert contar_vocales("BCD") == 0  # Este pasará
-print("✓ Tests de contar_vocales pasados")
+print("OK! Tests de contar_vocales pasados")
 
 print("¡Algunos tests fallaron! Revisa tus funciones.")

@@ -155,7 +155,7 @@ else
     # Forzar permisos como último recurso
     chmod -R 777 /opt/nbgrader_course
     chown -R www-data:www-data /opt/nbgrader_course
-    echo "✅ Permisos ajustados"
+    echo "OK! Permisos ajustados"
 fi
 
 # Configuración de grupos

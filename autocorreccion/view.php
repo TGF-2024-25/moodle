@@ -167,12 +167,7 @@ if (autocorreccion_is_teacher($context)) {
                 // Feedback combinado (automático + profesor)
                 $feedback_content = '';
                 if (!empty($entrega->feedback)) {
-                    $lineas_feedback = explode("\n", $entrega->feedback);
-                    foreach ($lineas_feedback as $linea) {
-                        if (trim($linea)) {
-                            $feedback_content .= html_writer::tag('div', s($linea), ['class' => 'feedback-line']);
-                        }
-                    }
+                    $feedback_content = autocorreccion_format_feedback($entrega->feedback);
                 }
 
                 if (!empty($entrega->teacher_feedback)) {
@@ -373,15 +368,11 @@ else {
         
         echo html_writer::start_tag('div', ['class' => 'feedback-container']);
         if (!empty($ultima->feedback)) {
-            $lineas_feedback = explode("\n", $ultima->feedback);
-            foreach ($lineas_feedback as $linea) {
-                if (trim($linea)) {
-                    echo html_writer::tag('div', s($linea), ['class' => 'feedback-line']);
-                }
-            }
+            echo autocorreccion_format_feedback($ultima->feedback);
         } else {
             echo get_string('nofeedback', 'autocorreccion');
         }
+        echo html_writer::end_tag('div');
         
         if (!empty($ultima->teacher_feedback)) {
             echo html_writer::tag('h4', 'Comentario del profesor:', ['class' => 'teacher-feedback-title']);
@@ -451,12 +442,7 @@ else {
                 // Feedback combinado para el historial
                 $feedback_content = '';
                 if (!empty($record->feedback)) {
-                    $lineas_feedback = explode("\n", $record->feedback);
-                    foreach ($lineas_feedback as $linea) {
-                        if (trim($linea)) {
-                            $feedback_content .= html_writer::tag('div', s($linea), ['class' => 'feedback-line']);
-                        }
-                    }
+                    $feedback_content = autocorreccion_format_feedback($record->feedback);
                 }
 
                 if (!empty($record->teacher_feedback)) {
@@ -471,7 +457,7 @@ else {
                 $feedback_cell = $feedback_content;
                 
                 $table->data[] = [
-                    userdate($record->timecreated, get_string('strftimedateshort')),
+                    userdate($record->timecreated, get_string('strftimedatetime')),
                     $archivos ?: '-',
                     html_writer::tag('span', 
                         $record->nota ?? 'N/A', 

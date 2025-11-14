@@ -19,9 +19,16 @@ class mod_autocorreccion_feedback_form extends moodleform {
         }
         
         // Feedback automático de nbgrader (solo lectura)
-        $mform->addElement('textarea', 'autofeedback', 'Feedback automático', 
-            ['rows' => 5, 'readonly' => true]);
-        $mform->setDefault('autofeedback', $submission->feedback ?? '');
+        $autofeedback_html = $submission->feedback ?? '';
+
+        if (!empty($autofeedback_html)) {
+            // Si el feedback contiene HTML, lo mostramos renderizado
+            $formatted_feedback = format_text($autofeedback_html, FORMAT_HTML);
+        } else {
+            $formatted_feedback = html_writer::tag('em', 'No hay feedback automático disponible.');
+        }
+
+        $mform->addElement('static', 'autofeedback_html', 'Feedback automático:', $formatted_feedback);
         
         // Feedback adicional del profesor
         $mform->addElement('editor', 'teacher_feedback', 'Comentario adicional', 
