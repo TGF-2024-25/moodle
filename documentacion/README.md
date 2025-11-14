@@ -1,7 +1,7 @@
 # Sistema de Auto-Corrección Moodle con NBGrader
 Implementación de un plugin para Moodle que permite la autocorrección automática de tareas de programación en Python mediante integración con NBGrader
 
-## Descripción:
+## Descripción
 Este proyecto implementa un plugin para Moodle que evalúa automáticamente notebooks Jupyter (.ipynb) y scripts Python (.py), proporcionando feedback inmediato a los estudiantes. Desarrollado como Trabajo de Fin de Grado en Ingeniería de Software.
 
 ## Características Principales
