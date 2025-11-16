@@ -34,8 +34,9 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
     3. Acceder a http://localhost:8080
 
   ### Para Linux/Mac
-    1. `chmod +x start_system.sh`
-    2. `./start_system.sh`
+    1. `cd infraestructura`
+    2. `chmod +x start_system.sh`
+    3. `./start_system.sh`
 
   ### URLs del Sistema
     - Moodle: http://localhost:8080
