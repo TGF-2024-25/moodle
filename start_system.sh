@@ -14,25 +14,32 @@ if [ $? -ne 0 ]; then
 fi
 
 echo ""
-echo "Configurando NBGrader..."
+echo "Configurando NBGrader en HOST..."
+
+# Detectar SO
+if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
+    PYTHON_CMD="python"
+    VENV_ACTIVATE="nbgrader_venv/Scripts/activate"
+else
+    PYTHON_CMD="python3"
+    VENV_ACTIVATE="nbgrader_venv/bin/activate"
+fi
+
+# Crear entorno virtual
 if [ ! -d "nbgrader_venv" ]; then
-    python3 -m venv nbgrader_venv
+    echo "Creando entorno virtual..."
+    $PYTHON_CMD -m venv nbgrader_venv
     if [ $? -ne 0 ]; then
         echo "ERROR: No se pudo crear el entorno virtual"
         exit 1
     fi
 fi
 
-source nbgrader_venv/bin/activate
+# Activar y instalar dependencias
+source $VENV_ACTIVATE
 
-if [ ! -d "nbgrader_venv/lib/python3.*/site-packages/nbgrader" ]; then
-    echo "Instalando nbgrader..."
-    pip install nbgrader jupyter
-    if [ $? -ne 0 ]; then
-        echo "ERROR: No se pudieron instalar las dependencias"
-        exit 1
-    fi
-fi
+echo "Instalando/verificando dependencias..."
+pip install nbgrader jupyter flask --disable-pip-version-check
 
 echo ""
 echo "=========================================="
@@ -41,9 +48,9 @@ echo "=========================================="
 echo "Moodle:  http://localhost:8080"
 echo "API:     http://localhost:5000"
 echo ""
-echo "La API se esta iniciando..."
+echo "Iniciando API NBGrader..."
 echo "Para detener: Ctrl+C"
 echo "=========================================="
 echo ""
 
-python ../api/nbgrader_api.py
+python api/nbgrader_api.py

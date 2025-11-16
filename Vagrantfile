@@ -20,5 +20,5 @@ Vagrant.configure("2") do |config|
   end
 
   # Ejecutamos el script de instalación externo
-  config.vm.provision "shell", path: "infraestructura/provision.sh"
+  config.vm.provision "shell", path: "provision.sh"
 end

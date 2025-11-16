@@ -29,14 +29,13 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
 
 ## Inicio Rápido
   ### Para Windows
-    1. Doble clic en `start_system.bat`
+    1. Doble clic en `start_system.bat` o  ejecutar `.\start_system.bat`
     2. Esperar a que se inicien todos los servicios
     3. Acceder a http://localhost:8080
 
   ### Para Linux/Mac
-    1. `cd infraestructura`
-    2. `chmod +x start_system.sh`
-    3. `./start_system.sh`
+    1. `chmod +x start_system.sh`
+    2. `./start_system.sh`
 
   ### URLs del Sistema
     - Moodle: http://localhost:8080
@@ -92,14 +91,13 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
     ├── ejemplos/
     │   ├── notebooks_ejemplo/            # Archivos de ejemplo de subida
     │   └── crear_ejercicios.py           # Script de ejemplo para crear archivos .ipynb
-    ├── infraestructura/
-    │   ├── provision.sh                  # Script de aprovisionamiento
-    │   ├── start_system.bat              # Inicio en Windows
-    │   └── start_system.sh               # Inicio en Linux/Mac
     ├── tests/
     │   ├── test_integracion.py
     │   ├── test_seguridad.py
     │   └── test_sistema.py
+    ├── provision.sh                      # Script de aprovisionamiento
+    ├── start_system.bat                  # Inicio en Windows
+    ├── start_system.sh                   # Inicio en Linux/Mac
     └️ Vagrantfile                         # Configuración de la VM
 
 ## Uso del Sistema
