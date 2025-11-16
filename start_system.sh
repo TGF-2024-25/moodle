@@ -41,6 +41,9 @@ source $VENV_ACTIVATE
 echo "Instalando/verificando dependencias..."
 pip install nbgrader jupyter flask --disable-pip-version-check
 
+echo "Instalando kernel de Python para Jupyter..."
+python -m ipykernel install --user --name python3 --display-name "Python 3" 2>/dev/null || echo "¡Kernel ya existe o no es necesario!"
+
 echo ""
 echo "=========================================="
 echo "     SISTEMA INICIADO CORRECTAMENTE"

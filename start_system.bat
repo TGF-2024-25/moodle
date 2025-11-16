@@ -34,6 +34,9 @@ pip install requests nbformat nbconvert --disable-pip-version-check
 echo Instalando NBGrader...
 pip install nbgrader --disable-pip-version-check
 
+echo Instalando kernel de Python para Jupyter...
+python -m ipykernel install --user --name python3 --display-name "Python 3" 2>nul || echo ¡Kernel ya existe o no es necesario!
+
 echo Verificando instalacion...
 python -c "import flask; print('¡Sistema listo!')"
 
