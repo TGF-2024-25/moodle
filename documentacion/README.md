@@ -59,8 +59,8 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
     2. Iniciar la máquina virtual:
       `vagrant up`
     3. Configurar NBGrader en el host:
-      Se ejecuta automáticamente en los scripts de inicio
-      Creación del entorno virtual e instalación de dependencias
+      - Se ejecuta automáticamente en los scripts de inicio
+      - Creación del entorno virtual e instalación de dependencias
     4. Acceder a Moodle:
       - Abrir http://localhost:8080
       - Completar la instalación web de Moodle
