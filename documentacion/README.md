@@ -40,7 +40,7 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
   ### URLs del Sistema
     - Moodle: http://localhost:8080
     - API NBGrader: http://localhost:5000
-    - Moodle (red interna): http://192.168.56.10p
+    - Moodle (red interna): http://192.168.56.10
 
 ## Instalación Manual
   ### Prerrequisitos
@@ -92,11 +92,6 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
       - Detener la API: Presionar `Ctrl + C` en la terminal donde se está ejecutando start_system o nbgrader_api.py
       - Apagar la VM (Opcional): Para liberar la memoria y recursos del host, usar el comando (desde la carpeta /moodle): 
         - `vagrant halt`
-
-  ### URLs del Sistema
-    - Moodle: http://localhost:8080
-    - API NBGrader: http://localhost:5000
-    - Moodle (red interna): http://192.168.56.10
 
 ## Configuración
   ### Configuración del Plugin en Moodle
