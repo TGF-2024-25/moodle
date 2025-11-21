@@ -63,31 +63,35 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
       - Instalación de Vagrant: Descargar y ejecutar el instalador (.msi para Windows, .dmg para macOS)
       - Instalación de Git: Descargar el cliente más reciente o usar el gestor de paquetes (sudo apt install en Debian/Ubuntu)
       - Para instalar VirtualBox y Vagrant en Linux: Seguir instrucciones de instalación por paquetes según la distribución
+
     2. Configuración del Proyecto y Entornos
-      1. Clonar el repositorio: 
-        `git clone https://github.com/TGF-2024-25/moodle.git`
-        `cd moodle`
-      2. Iniciar la máquina virtual: La ejecución de este comando iniciará la descarga de Ubuntu 22.04 y ejecutará provision.sh
-        `vagrant up`
-      3. Configurar NBGrader en el host: Se ejecuta automáticamente al usar los scripts de inicio (start_system.sh o start_system.bat). Puede hacerlo manualmente (después de vagrant up):
-        - Crear el entorno virtual: python -m venv nbgrader_venv
-        - Activar el entorno: source nbgrader_venv/bin/activate (Linux/Mac) o .\nbgrader_venv\Scripts\activate.bat (Windows)
-        - Instalar dependencias: pip install nbgrader jupyter flask
-      4. Lanzar la API: Iniciar el servicio REST de Flask para la corrección:
-        - python api/nbgrader_api.py
+      - Clonar el repositorio: 
+        - `git clone https://github.com/TGF-2024-25/moodle.git`
+        - `cd moodle`
+      - Iniciar la máquina virtual: La ejecución de este comando iniciará la descarga de Ubuntu 22.04 y ejecutará provision.sh
+        - `vagrant up`
+      - Configurar NBGrader en el host: Se ejecuta automáticamente al usar los scripts de inicio (start_system.sh o start_system.bat). Puede hacerlo manualmente (después de vagrant up):
+        - Crear el entorno virtual: `python -m venv nbgrader_venv`
+        - Activar el entorno: `source nbgrader_venv/bin/activate` (Linux/Mac) o `.\nbgrader_venv\Scripts\activate.bat` (Windows)
+        - Instalar dependencias: `pip install nbgrader jupyter flask`
+      - Lanzar la API: Iniciar el servicio REST de Flask para la corrección:
+        - `python api/nbgrader_api.py`
+
     3. Finalizar la instalación Web de Moodle
-      1. Acceder a http://localhost:8080
-      2. Seguir el Asistente de Instalación de Moodle con los siguientes datos (establecidos en provision.sh)
+      - Acceder a http://localhost:8080
+      - Seguir el Asistente de Instalación de Moodle con los siguientes datos (establecidos en provision.sh)
         - Ruta de datos: /var/www/moodledata
         - Base de datos: MySQL (o MariaDB)
         - Usuario de la Base de Datos: moodleuser
         - Contraseña de la Base de Datos: password123
         - Base de Datos (nombre): moodle
         - Prefijo de tablas: mdl_
-      3. Completar los pasos restantes (configuración del administrador, configuración del sitio...)
+      - Completar los pasos restantes (configuración del administrador, configuración del sitio...)
+
     4. Detención del Sistema
-      - Detener la API: Presionar Ctrl + C en la terminal donde se está ejecutando start_system o nbgrader_api.py
-      - Apagar la VM (Opcional): Para liberar la memoria y recursos del host, usar el comando (desde la carpeta /moodle): vagrant halt
+      - Detener la API: Presionar `Ctrl + C` en la terminal donde se está ejecutando start_system o nbgrader_api.py
+      - Apagar la VM (Opcional): Para liberar la memoria y recursos del host, usar el comando (desde la carpeta /moodle): 
+        - `vagrant halt`
 
   ### URLs del Sistema
     - Moodle: http://localhost:8080
