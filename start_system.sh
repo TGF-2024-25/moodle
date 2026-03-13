@@ -5,6 +5,23 @@ echo "=========================================="
 
 echo "Iniciando sistema..."
 
+echo "Verificando Python..."
+if command -v python3 &>/dev/null; then
+    PYTHON_CMD="python3"
+elif command -v python &>/dev/null; then
+    PYTHON_CMD="python"
+else
+    echo ============================================================================
+    echo "ERROR: Python no está instalado"
+    echo ""
+    echo "Por favor, instala Python desde: https://www.python.org/downloads/"
+    echo "IMPORTANTE: Durante la instalación, marca la opción 'Add Python to PATH'"
+    echo ""
+    echo "Después de instalar, ejecuta este script nuevamente"
+    echo ============================================================================
+    exit 1
+fi
+
 echo "Iniciando maquina virtual..."
 vagrant up
 

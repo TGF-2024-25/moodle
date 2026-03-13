@@ -4,6 +4,21 @@ echo ==========================================
 echo    SISTEMA DE AUTO-CORRECCION MOODLE
 echo ==========================================
 
+echo Verificando Python...
+python --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo ============================================================================
+    echo ERROR: Python no esta instalado o no esta en PATH
+    echo.
+    echo Por favor, instala Python desde: https://www.python.org/downloads/
+    echo IMPORTANTE: Durante la instalacion, marca la opcion "Add Python to PATH"
+    echo.
+    echo Despues de instalar, cierra y abre de nuevo la terminal
+    echo ============================================================================
+    pause
+    exit /b 1
+)
+
 echo Iniciando maquina virtual...
 vagrant up
 if %errorlevel% neq 0 (
