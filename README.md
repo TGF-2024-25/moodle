@@ -98,10 +98,10 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
       - Acceder a http://localhost:8080
       - Seguir el Asistente de Instalación de Moodle con los siguientes datos (establecidos en provision.sh)
         - Ruta de datos: /var/www/moodledata
-        - Base de datos: MySQL (o MariaDB)
+        - Tipo de Base de datos: MySQL (o MariaDB)
         - Usuario de la Base de Datos: moodleuser
         - Contraseña de la Base de Datos: password123
-        - Base de Datos (nombre): moodle
+        - Nombre de Base de Datos: moodle
         - Prefijo de tablas: mdl_
       - Completar los pasos restantes (configuración del administrador, configuración del sitio...)
 
@@ -123,6 +123,7 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
 
   ### Configuración de la API NBGrader
     La API se inicia automáticamente y proporciona:
+      - GET /: Información general de la API
       - POST /grade: Evaluar notebooks
       - GET /health: Estado del sistema
       - GET /test: Prueba de evaluación

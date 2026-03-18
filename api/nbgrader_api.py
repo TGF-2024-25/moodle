@@ -23,6 +23,25 @@ except ImportError as e:
 
 app = Flask(__name__)
 
+@app.route('/')
+def home():
+    """Endpoint raíz con información de la API"""
+    return jsonify({
+        "nombre": "API de Auto-Corrección NBGrader",
+        "version": "1.0.0",
+        "estado": "funcionando",
+        "motor_evaluacion": "DISPONIBLE" if EVALUATION_ENGINE_AVAILABLE else "NO DISPONIBLE",
+        "mensaje": "Esta es la API que utiliza el plugin de Moodle para corregir automáticamente notebooks",
+        "endpoints_disponibles": {
+            "GET /": "Página de información",
+            "GET /health": "Verificar que la API funciona correctamente",
+            "GET /test": "Ejecutar una prueba de evaluación con un notebook de ejemplo",
+            "POST /grade": "Endpoint principal para evaluar notebooks (usado por el plugin)"
+        },
+        "documentacion": "Consulta el README.md para más información sobre la instalación y configuración",
+        "url_base": "http://localhost:5000"
+    })
+
 def evaluar_con_nbgrader_real(notebook_path, student_id, assignment_name):
     """Usa el evaluate_nbgrader.py real para evaluación"""
     try:
@@ -244,9 +263,11 @@ def test_evaluation():
         }), 500
 
 if __name__ == '__main__':
+    print("=" * 50)
     print("API de Auto-Corrección - Integración NBGrader Real")
     print("URL: http://localhost:5000")
     print("Endpoints disponibles:")
+    print("   GET  /          - Información de la API")
     print("   POST /grade     - Evaluar notebook")
     print("   GET  /health    - Estado del sistema") 
     print("   GET  /test      - Prueba de evaluación")
