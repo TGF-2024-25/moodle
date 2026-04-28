@@ -17,7 +17,7 @@ apt-get update
 apt-get upgrade -y
 
 # Instalar Apache y MySQL
-apt-get install -y apache2 mysql-server git unzip python3-pip python3-venv rsync
+apt-get install -y apache2 mysql-server git unzip python3-pip python3-venv rsync curl
 
 # --- 2. Instalar PHP 8.1 ---
 echo "Instalando PHP 8.1 y extensiones..."
@@ -58,7 +58,7 @@ echo "innodb_file_per_table = 1" | tee -a /etc/mysql/mysql.conf.d/mysqld.cnf
 systemctl restart mysql
 
 # --- 5. Descargar Moodle ---
-echo "Descargando Moodle y configurando directorios..."
+echo "Descargando Moodle desde ZIP local..."
 mkdir -p /var/www/html/moodle
 rm -rf /tmp/moodle_source
 
@@ -96,8 +96,6 @@ mkdir -p /var/www/moodledata
 echo "Moodle instalado correctamente"
 
 # --- 6. Configurar Apache ---
-
-# Asegurarse de que Apache escuche en el puerto 80 (guest)
 cat <<EOF > /etc/apache2/ports.conf
 Listen 80
 
@@ -138,13 +136,24 @@ chown -R www-data:www-data /var/www
 chmod -R 755 /var/www/html/moodle
 chmod -R 777 /var/www/moodledata
 
-# --- 8. Configurar NBGrader en VM ---
-echo "Configurando directorios para NBGrader..."
+# --- 8. Configurar NBGrader y dependencias ---
+echo "Configurando NBGrader y dependencias..."
+
+# Directorios para NBGrader
 mkdir -p /opt/nbgrader_course/{source,release,submitted,feedback}
 chown -R www-data:www-data /opt/nbgrader_course
 chmod -R 777 /opt/nbgrader_course
 
-# --- 9. Configurar API de NBGrader dentro de la VM ---
+# Instalar dependencias Python en el sistema (para www-data)
+echo "Instalando dependencias Python en el sistema..."
+apt-get install -y python3-pip
+pip3 install nbformat nbconvert nbgrader flask ipykernel
+
+# Instalar también para el usuario www-data (el que ejecuta Apache)
+echo "Instalando dependencias para usuario www-data..."
+sudo -u www-data pip3 install --user nbformat nbconvert nbgrader
+
+# --- 9. Configurar API de NBGrader ---
 echo "Configurando API de NBGrader dentro de la VM..."
 
 # Crear directorio para la API
@@ -153,10 +162,13 @@ mkdir -p /opt/nbgrader_api
 # Copiar archivos de la API desde el host
 if [ -d "/vagrant/api" ]; then
     cp -r /vagrant/api/* /opt/nbgrader_api/
+fi
+
+if [ -d "/vagrant/autocorreccion" ]; then
     cp -r /vagrant/autocorreccion /opt/nbgrader_api/
 fi
 
-# Crear entorno virtual para la API (usando Python de la VM)
+# Crear entorno virtual para la API
 cd /opt/nbgrader_api
 python3 -m venv venv
 source venv/bin/activate
@@ -171,24 +183,25 @@ pip install nbconvert==7.14.2
 pip install ipykernel==6.29.5
 pip install jsonschema==4.17.3
 pip install lark==1.1.9
+pip install requests
 
 # Instalar kernel de Jupyter
 python -m ipykernel install --user --name python3 --display-name "Python 3"
 
 # Crear script de inicio para la API
-cat << 'EOF' > /opt/nbgrader_api/start_api.sh
+cat << 'SCRIPT_EOF' > /opt/nbgrader_api/start_api.sh
 #!/bin/bash
 cd /opt/nbgrader_api
 source venv/bin/activate
 export FLASK_APP=nbgrader_api.py
 export FLASK_ENV=production
-python nbgrader_api.py
-EOF
+exec python nbgrader_api.py
+SCRIPT_EOF
 
 chmod +x /opt/nbgrader_api/start_api.sh
 
-# Crear servicio systemd para que la API arranque automáticamente
-cat << 'EOF' > /etc/systemd/system/nbgrader-api.service
+# Crear servicio systemd
+cat << 'SERVICE_EOF' > /etc/systemd/system/nbgrader-api.service
 [Unit]
 Description=NBGrader API Service
 After=network.target
@@ -203,24 +216,29 @@ RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
-EOF
+SERVICE_EOF
 
 # Habilitar e iniciar el servicio
 systemctl daemon-reload
 systemctl enable nbgrader-api.service
 systemctl start nbgrader-api.service
 
-echo "API de NBGrader configurada y ejecutándose en la VM"
+# Verificar instalaciones
+echo "Verificando instalación..."
+python3 -c "import nbformat; print('nbformat disponible en sistema')"
+sudo -u www-data python3 -c "import nbformat; print('nbformat disponible para www-data')"
 
-# Instalar dependencias Python en VM
-echo "Instalando dependencias Python en VM..."
-apt-get install -y python3-pip
-pip3 install nbformat nbconvert flask
-
-# Ejecutar actualización de Moodle
+echo ""
+echo "=========================================="
+echo "¡Todo listo! Vagrant se ha completado correctamente"
+echo "=========================================="
+echo ""
 echo "Moodle descargado correctamente"
 echo "NOTA: Debes completar la instalación de Moodle desde el navegador"
-
-echo "¡Todo listo! Vagrant se ha completado correctamente"
-echo "Moodle disponible en http://192.168.56.10/ y http://localhost:8080/"
-echo "NBGrader configurado en: /opt/nbgrader_env"
+echo ""
+echo "Moodle:       http://localhost:8080"
+echo "API NBGrader: http://localhost:5000"
+echo ""
+echo "La API se ejecuta automáticamente dentro de la VM"
+echo "Para ver logs de la API: vagrant ssh -c 'sudo journalctl -u nbgrader-api -f'"
+echo "=========================================="

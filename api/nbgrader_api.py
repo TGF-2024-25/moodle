@@ -44,7 +44,7 @@ app = Flask(__name__)
 def home():
     """Endpoint raíz con información de la API"""
     return jsonify({
-        "nombre": "API de Auto-Corrección NBGrader",
+        "nombre": "API de Auto-Correccion NBGrader",
         "version": "1.0.0",
         "estado": "funcionando",
         "motor_evaluacion": "DISPONIBLE" if EVALUATION_ENGINE_AVAILABLE else "NO DISPONIBLE",
