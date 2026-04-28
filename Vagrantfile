@@ -3,13 +3,18 @@ Vagrant.configure("2") do |config|
   # Usaremos Ubuntu 22.04 (Jammy)
   config.vm.box = "ubuntu/jammy64"
   
+  # Puerto para Moodle
   config.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
+
+  # Puerto para la API de NBGrader (dentro de la VM)
+  config.vm.network "forwarded_port", guest: 5000, host: 5000, auto_correct: true
   
   config.vm.boot_timeout = 600
 
   # Sincronizamos la carpeta "autocorreccion" del repositorio donde está el código
   # con la carpeta de módulos de Moodle dentro de la máquina virtual.
   config.vm.synced_folder "./autocorreccion", "/var/www/html/moodle/mod/autocorreccion"
+  config.vm.synced_folder "./api", "/vagrant/api"
 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = "4096" # Aumentamos memoria a 4GB para mejorar rendimiento

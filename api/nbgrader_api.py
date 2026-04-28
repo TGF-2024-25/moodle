@@ -11,8 +11,25 @@ from flask import Flask, request, jsonify
 
 # Añadir ruta al plugin Moodle para importar evaluate_nbgrader
 current_dir = os.path.dirname(os.path.abspath(__file__))
-autocorreccion_path = os.path.join(current_dir, '../autocorreccion')
-sys.path.append(autocorreccion_path)
+
+# Intentar diferentes rutas posibles
+possible_paths = [
+    os.path.join(current_dir, '../autocorreccion'),  # Desarrollo local
+    os.path.join(current_dir, 'autocorreccion'),     # Dentro de la VM
+    '/opt/nbgrader_api/autocorreccion',              # Ruta absoluta en VM
+]
+
+autocorreccion_path = None
+for path in possible_paths:
+    if os.path.exists(path):
+        autocorreccion_path = path
+        break
+
+if autocorreccion_path:
+    sys.path.append(autocorreccion_path)
+    print(f"Usando ruta de autocorreccion: {autocorreccion_path}")
+else:
+    print(f"No se encontró autocorreccion en: {possible_paths}")
 
 try:
     from evaluate_nbgrader import evaluar_notebook
@@ -31,14 +48,14 @@ def home():
         "version": "1.0.0",
         "estado": "funcionando",
         "motor_evaluacion": "DISPONIBLE" if EVALUATION_ENGINE_AVAILABLE else "NO DISPONIBLE",
-        "mensaje": "Esta es la API que utiliza el plugin de Moodle para corregir automáticamente notebooks",
+        "mensaje": "Esta es la API que utiliza el plugin de Moodle para corregir automaticamente notebooks",
         "endpoints_disponibles": {
-            "GET /": "Página de información",
+            "GET /": "Pagina de informacion",
             "GET /health": "Verificar que la API funciona correctamente",
-            "GET /test": "Ejecutar una prueba de evaluación con un notebook de ejemplo",
+            "GET /test": "Ejecutar una prueba de evaluacion con un notebook de ejemplo",
             "POST /grade": "Endpoint principal para evaluar notebooks (usado por el plugin)"
         },
-        "documentacion": "Consulta el README.md para más información sobre la instalación y configuración",
+        "documentacion": "Consulta el README.md para mas informacion sobre la instalacion y configuracion",
         "url_base": "http://localhost:5000"
     })
 

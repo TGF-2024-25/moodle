@@ -61,9 +61,39 @@ systemctl restart mysql
 echo "Descargando Moodle y configurando directorios..."
 mkdir -p /var/www/html/moodle
 rm -rf /tmp/moodle_source
-git clone -b MOODLE_401_STABLE --depth 1 https://github.com/moodle/moodle.git /tmp/moodle_source
+
+echo "Buscando zip local en /vagrant/..."
+
+MOODLE_ZIP=$(find /vagrant -maxdepth 1 -name "moodle*.zip" | head -1)
+
+if [ -n "$MOODLE_ZIP" ]; then
+    echo "Usando zip local: $MOODLE_ZIP"
+    apt-get install -y unzip
+    mkdir -p /tmp/moodle_source
+    mkdir -p /tmp/moodle_unzip
+    unzip -q "$MOODLE_ZIP" -d /tmp/moodle_unzip
+
+    # El zip de Moodle contiene una carpeta 'moodle' dentro
+    if [ -d "/tmp/moodle_unzip/moodle" ]; then
+        mv /tmp/moodle_unzip/moodle/* /tmp/moodle_source/
+    else
+        mv /tmp/moodle_unzip/*/* /tmp/moodle_source/ 2>/dev/null || \
+        mv /tmp/moodle_unzip/* /tmp/moodle_source/
+    fi
+
+    rm -rf /tmp/moodle_unzip
+    echo "Zip local descomprimido correctamente"
+else
+    echo "ERROR: No se encontró ningún moodle*.zip en /vagrant/"
+    echo "Descarga Moodle 4.1 desde https://download.moodle.org/ y ponlo en la carpeta del proyecto"
+    exit 1
+fi
+
+# Copiar a destino final
 rsync -av --remove-source-files /tmp/moodle_source/ /var/www/html/moodle/
+rm -rf /tmp/moodle_source
 mkdir -p /var/www/moodledata
+echo "Moodle instalado correctamente"
 
 # --- 6. Configurar Apache ---
 
@@ -113,6 +143,74 @@ echo "Configurando directorios para NBGrader..."
 mkdir -p /opt/nbgrader_course/{source,release,submitted,feedback}
 chown -R www-data:www-data /opt/nbgrader_course
 chmod -R 777 /opt/nbgrader_course
+
+# --- 9. Configurar API de NBGrader dentro de la VM ---
+echo "Configurando API de NBGrader dentro de la VM..."
+
+# Crear directorio para la API
+mkdir -p /opt/nbgrader_api
+
+# Copiar archivos de la API desde el host
+if [ -d "/vagrant/api" ]; then
+    cp -r /vagrant/api/* /opt/nbgrader_api/
+    cp -r /vagrant/autocorreccion /opt/nbgrader_api/
+fi
+
+# Crear entorno virtual para la API (usando Python de la VM)
+cd /opt/nbgrader_api
+python3 -m venv venv
+source venv/bin/activate
+
+# Instalar dependencias (versiones compatibles)
+pip install --upgrade pip
+pip install nbgrader==0.9.4
+pip install jupyter==1.0.0
+pip install flask==2.3.3
+pip install nbformat==5.9.2
+pip install nbconvert==7.14.2
+pip install ipykernel==6.29.5
+pip install jsonschema==4.17.3
+pip install lark==1.1.9
+
+# Instalar kernel de Jupyter
+python -m ipykernel install --user --name python3 --display-name "Python 3"
+
+# Crear script de inicio para la API
+cat << 'EOF' > /opt/nbgrader_api/start_api.sh
+#!/bin/bash
+cd /opt/nbgrader_api
+source venv/bin/activate
+export FLASK_APP=nbgrader_api.py
+export FLASK_ENV=production
+python nbgrader_api.py
+EOF
+
+chmod +x /opt/nbgrader_api/start_api.sh
+
+# Crear servicio systemd para que la API arranque automáticamente
+cat << 'EOF' > /etc/systemd/system/nbgrader-api.service
+[Unit]
+Description=NBGrader API Service
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/nbgrader_api
+ExecStart=/opt/nbgrader_api/start_api.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Habilitar e iniciar el servicio
+systemctl daemon-reload
+systemctl enable nbgrader-api.service
+systemctl start nbgrader-api.service
+
+echo "API de NBGrader configurada y ejecutándose en la VM"
 
 # Instalar dependencias Python en VM
 echo "Instalando dependencias Python en VM..."

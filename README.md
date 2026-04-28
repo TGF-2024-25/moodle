@@ -1,5 +1,5 @@
 # Sistema de Auto-Corrección Moodle con NBGrader
-Implementación de un plugin para Moodle que permite la autocorrección automática de tareas de programación en Python mediante integración con NBGrader
+Implementación de un plugin para Moodle que permite la autocorrección automática de tareas de programación en Python mediante integración con NBGrader.
 
 ## Descripción
 Este proyecto implementa un plugin para Moodle que evalúa automáticamente notebooks Jupyter (.ipynb) y scripts Python (.py), proporcionando feedback inmediato a los estudiantes. Desarrollado como Trabajo de Fin de Grado en Ingeniería de Software.
@@ -27,21 +27,6 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
       - Motor de Evaluación
     - Sistema de Archivos Compartido
 
-## Importante: instalación de Python
-  ### Para usuarios de Windows:
-    1. Descargar Python: https://www.python.org/downloads/
-    2. Durante la insalación, marcar "Add Python to PATH"
-    3. Reiniciar la terminal
-    4. Verificar que se ha instalado: 'python --version"
-
-  ### Para usuarios de Linux/macOS:
-    Python generalmente viene preinstalado. Verificar con:
-      - 'python3 --version'
-
-    Si no está instalado:
-      - macOS: 'brew install python'
-      - Linux: 'sudo apt install python3 python3-pip python3-venv'
-
 ## Inicio Rápido
   ### Para Windows
     1. Doble clic en `start_system.bat` o  ejecutar `.\start_system.bat`
@@ -55,7 +40,6 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
   ### URLs del Sistema
     - Moodle: http://localhost:8080
     - API NBGrader: http://localhost:5000
-    - Moodle (red interna): http://192.168.56.10
 
 ## Instalación Manual
   ### Prerrequisitos
@@ -64,22 +48,19 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
     - Espacio en disco: 20GB mínimo
     - Vagrant: 2.3.7+
     - VirtualBox: 7.0.12+
-    - Python: 3.8+ (Importante marcar "Add Python to PATH")
-    - Git: última versión
+
+    - NOTA: No es necesario instalar Python, Git ni ninguna otra dependencia en el host. 
+      Todo está contenido dentro de la máquina virtual.
 
   ### Enlaces de Descarga
     - VirtualBox: https://www.virtualbox.org/wiki/Downloads
     - Vagrant: https://developer.hashicorp.com/vagrant/downloads
-    - Git: https://git-scm.com/downloads
-    - Python: https://www.python.org/downloads/
 
   ### Pasos de Instalación y Configuración del Entorno
     1. Instalación de Dependencias:
       - Instalación de VirtualBox: Descargar y ejecutar el instalador correspondiente a su sistema operativo (Windows: .exe, macOS: .dmg)
       - Instalación de Vagrant: Descargar y ejecutar el instalador (.msi para Windows, .dmg para macOS)
-      - Instalación de Git: Descargar el cliente más reciente o usar el gestor de paquetes (sudo apt install en Debian/Ubuntu)
       - Para instalar VirtualBox y Vagrant en Linux: Seguir instrucciones de instalación por paquetes según la distribución
-      - Python: Descargar e instalar, marcando "Add Python to PATH"
 
     2. Configuración del Proyecto y Entornos
       - Clonar el repositorio: 
@@ -105,7 +86,22 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
         - Prefijo de tablas: mdl_
       - Completar los pasos restantes (configuración del administrador, configuración del sitio...)
 
-    4. Detención del Sistema
+    4. Verificar que la API funciona
+      - Acceder a http://localhost:5000
+      - Comprobar que aparece:
+        {
+          "nombre": "API de Auto-Corrección NBGrader",
+          "estado": "funcionando",
+          "motor_evaluacion": "DISPONIBLE",
+          "endpoints_disponibles": {
+            "GET /": "Información general",
+            "GET /health": "Estado del sistema",
+            "GET /test": "Prueba de evaluación",
+            "POST /grade": "Evaluar notebooks"
+          }
+        }
+
+    5. Detención del Sistema
       - Detener la API: Presionar `Ctrl + C` en la terminal donde se está ejecutando start_system o nbgrader_api.py
       - Apagar la VM (Opcional): Para liberar la memoria y recursos del host, usar el comando (desde la carpeta /moodle): 
         - `vagrant halt`
@@ -140,6 +136,7 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
     │   ├── test_integracion.py
     │   ├── test_seguridad.py
     │   └── test_sistema.py
+    ├── moodle.zip                        # ZIP donde se encuentra Moodle
     ├── provision.sh                      # Script de aprovisionamiento
     ├── README.md                         # Este archivo
     ├── start_system.bat                  # Inicio en Windows
@@ -161,10 +158,6 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
 
 ## Solución de Problemas
   ### Problemas Comunes
-    1. "Python no encontrado" en Windows:
-      - Instalar Python desde https://python.org/
-      - Marcar "Add Python to PATH" durante la instalación
-      - Reiniciar la terminal
     1. La VM no inicia:
       - Verificar que VirtualBox esté instalado
       - Comprobar que la virtualización está habilitada en BIOS
@@ -188,8 +181,9 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
     `sudo tail -f /var/log/apache2/error.log`
 
     - Reiniciar servicios
-    `sudo systemctl restart apache2`
-    `sudo systemctl restart mysql`
+    `vagrant ssh -c "sudo systemctl restart apache2"`
+    `vagrant ssh -c "sudo systemctl restart mysql"`
+    `vagrant ssh -c "sudo systemctl restart nbgrader-api"`
 
 ## Características Técnicas
   ### Tecnologías Utilizadas

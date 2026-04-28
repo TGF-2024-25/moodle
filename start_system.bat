@@ -3,69 +3,43 @@ chcp 65001 >nul
 echo ==========================================
 echo    SISTEMA DE AUTO-CORRECCION MOODLE
 echo ==========================================
-
-echo Verificando Python...
-python --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ============================================================================
-    echo ERROR: Python no esta instalado o no esta en PATH
-    echo.
-    echo Por favor, instala Python desde: https://www.python.org/downloads/
-    echo IMPORTANTE: Durante la instalacion, marca la opcion "Add Python to PATH"
-    echo.
-    echo Despues de instalar, cierra y abre de nuevo la terminal
-    echo ============================================================================
-    pause
-    exit /b 1
-)
+echo.
 
 echo Iniciando maquina virtual...
 vagrant up
+
 if %errorlevel% neq 0 (
+    echo.
     echo ERROR: No se pudo iniciar la maquina virtual
+    echo.
+    echo Posibles soluciones:
+    echo 1. Verifica que VirtualBox esta instalado
+    echo 2. Verifica que Vagrant esta instalado
+    echo 3. Ejecuta como Administrador
+    echo.
     pause
     exit /b 1
 )
-
-echo Configurando entorno Python...
-if not exist "nbgrader_venv" (
-    python -m venv nbgrader_venv
-    if %errorlevel% neq 0 exit /b 1
-)
-
-call nbgrader_venv\Scripts\activate.bat
-
-echo Instalando Flask primero...
-pip install flask --disable-pip-version-check
-if %errorlevel% neq 0 (
-    echo ERROR: No se pudo instalar Flask
-    pause
-    exit /b 1
-)
-
-echo Instalando dependencias basicas...
-pip install requests nbformat nbconvert --disable-pip-version-check
-
-echo Instalando NBGrader...
-pip install nbgrader --disable-pip-version-check
-
-echo Instalando kernel de Python para Jupyter...
-python -m ipykernel install --user --name python3 --display-name "Python 3" 2>nul || echo ¡Kernel ya existe o no es necesario!
-
-echo Verificando instalacion...
-python -c "import flask; print('¡Sistema listo!')"
 
 echo.
 echo ==========================================
 echo      SISTEMA INICIADO CORRECTAMENTE
 echo ==========================================
-echo Moodle:  http://localhost:8080
-echo API:     http://localhost:5000
 echo.
-echo NOTA: Algunas advertencias son normales en Windows
-echo La API se esta iniciando...
-echo Para detener: Ctrl+C
+echo Moodle:        http://localhost:8080
+echo API NBGrader:  http://localhost:5000
+echo.
+echo La VM se esta ejecutando en segundo plano
+echo Para detener el sistema: vagrant halt
+echo Para destruir la VM: vagrant destroy -f
+echo.
 echo ==========================================
+echo.
 
-python api\nbgrader_api.py
-pause
+echo Abriendo Moodle en el navegador...
+start http://localhost:8080
+
+echo.
+echo Presiona cualquier tecla para cerrar esta ventana
+echo (La VM se sigue ejecutando en segundo plano)
+pause >nul
