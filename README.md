@@ -129,19 +129,38 @@ Este proyecto implementa un plugin para Moodle que evalúa automáticamente note
     ├── api/
     │   └── nbgrader_api.py               # Servicio REST para NBGrader
     ├── autocorreccion/                   # Plugin Moodle
+    │   ├── classes/form
+    │   │   └── feedback_form.php
+    │   ├── db/
+    │   │   ├── access.php
+    │   │   ├── install.xml
+    │   │   └── upgrade.php
+    │   ├── lang/
+    │   │   ├── en/autocorreccion.php
+    │   │   └── es/autocorreccion.php
+    │   ├── pix/
+    │   ├── tests/
+    │   │   ├── test_integracion.py
+    │   │   ├── test_seguridad.py
+    │   │   └── test_sistema.py
+    │   ├── convert_py_to_ipynb.py
+    │   ├── editfeedback.php
+    │   ├── evaluate_nbgrader.py
+    │   ├── lib.php
+    │   ├── mod_form.php
+    │   ├── style.css
+    │   ├── upload.php
+    │   ├── version.php
+    │   └── view.php
     ├── ejemplos/
     │   ├── notebooks_ejemplo/            # Archivos de ejemplo de subida
     │   └── crear_ejercicios.py           # Script de ejemplo para crear archivos .ipynb
-    ├── tests/
-    │   ├── test_integracion.py
-    │   ├── test_seguridad.py
-    │   └── test_sistema.py
     ├── moodle.zip                        # ZIP donde se encuentra Moodle
     ├── provision.sh                      # Script de aprovisionamiento
     ├── README.md                         # Este archivo
     ├── start_system.bat                  # Inicio en Windows
     ├── start_system.sh                   # Inicio en Linux/Mac
-    └️ Vagrantfile                         # Configuración de la VM
+    └── Vagrantfile                       # Configuración de la VM
 
 ## Uso del Sistema
   ### Para Estudiantes
