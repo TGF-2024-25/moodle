@@ -1,17 +1,21 @@
+"""
+convert_py_to_ipynb.py
+
+Convierte un archivo Python (.py) a un Jupyter Notebook (.ipynb) listo para
+ser evaluado por el motor de autocorrección.
+"""
+
 import sys
-import nbformat
 import ast
-import re
+import nbformat
 from pathlib import Path
 
+
 def convert_py_to_ipynb(py_file, ipynb_file):
-    """Convierte archivo Python a Jupyter Notebook mejorado para evaluación"""
-    
-    # Leer el archivo Python
-    with open(py_file, 'r', encoding='utf-8') as f:
-        code_content = f.read()
-    
-    # Crear nuevo notebook
+    """Convierte archivo Python a Jupyter Notebook para evaluación."""
+
+    source = Path(py_file).read_text(encoding='utf-8')
+
     nb = nbformat.v4.new_notebook()
     nb.metadata = {
         "kernelspec": {
@@ -24,50 +28,29 @@ def convert_py_to_ipynb(py_file, ipynb_file):
             "version": "3.8.10"
         }
     }
-    
-    lines = code_content.split('\n')
-    current_cell = []
-    cells = []
-    
-    for i, line in enumerate(lines):
-        line_stripped = line.strip()
-        
-        if (line_stripped.startswith('def ') or 
-            line_stripped.startswith('class ') or
-            (line_stripped.startswith('assert ') and i > 0 and not lines[i-1].strip().startswith('assert'))):
-            
-            if current_cell:
-                cells.append('\n'.join(current_cell))
-                current_cell = []
-        
-        current_cell.append(line)
-    
-    if current_cell:
-        cells.append('\n'.join(current_cell))
-    
-    # Crear celdas del notebook, asegurando que asserts estén con su código relacionado
-    for cell_content in cells:
-        if cell_content.strip():  # No agregar celdas vacías
-            cell = nbformat.v4.new_code_cell(cell_content)
-            nb.cells.append(cell)
-    
-    # Guardar el notebook
+
+    if not source.strip():
+        nb.cells.append(nbformat.v4.new_code_cell(""))
+    else:
+        nb.cells.append(nbformat.v4.new_code_cell(source))
+
     with open(ipynb_file, 'w', encoding='utf-8') as f:
         nbformat.write(nb, f, version=4)
-    
+
     return True
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Uso: python convert_py_to_ipynb.py archivo_entrada.py archivo_salida.ipynb")
         sys.exit(1)
-    
+
     try:
         success = convert_py_to_ipynb(sys.argv[1], sys.argv[2])
         if success:
-            print(f"Conversión exitosa: {sys.argv[1]} -> {sys.argv[2]}")
+            print(f"Conversion exitosa: {sys.argv[1]} -> {sys.argv[2]}")
         else:
-            print("Error en la conversión")
+            print("Error en la conversion")
             sys.exit(1)
     except Exception as e:
         print(f"Error: {str(e)}")
